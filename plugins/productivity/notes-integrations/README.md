@@ -15,6 +15,7 @@ MCP-powered enrichment layer for the `daily-notes` plugin. Bridges your local no
 | Enrich meeting notes | `/enrich-meeting [name] [window?]` | Unblocked | Surfaces related PRs (last 7d), Slack threads (last 3d), and decisions for a person or topic → appends to their meeting note. Pass a window to override: `/enrich-meeting Sarah 30d` |
 | Enrich Scratch Pad | `/enrich-tickets` | Atlassian | Finds bare ticket keys in `Scratch Pad.md` (e.g. `POE-123`) and enriches them with title, status, and description before `/sync` |
 | Time recap | `/recap` | None (Atlassian optional) | Aggregates daily notes, meetings, and tasks over a time window — last week, last month, last quarter, or a custom date range |
+| Release notes | `/release-notes <label-or-window>` | None (Atlassian optional) | Changelog-style report from tasks tagged with a `release:` label (or matched by time window). Local-first; optional Atlassian enrichment for `jira:`-keyed items. Always prints which source was used. |
 | Calendar agenda | `/calendar` | Google Calendar MCP | Today's and upcoming GCal meetings — flags which have no notes yet, offers to create a blank meeting note |
 | Meeting reminder | `/meeting-reminder` | Google Calendar MCP | Nudge for meetings that ended in the last 2 hours with no notes written |
 
@@ -161,6 +162,44 @@ Sample output:
 ### Blockers / Carryover
 - POE-1289 (rate limiter) still blocked on infra approval
 ```
+
+---
+
+**Generate release notes for a label**
+```
+/release-notes v2.4
+/release-notes Q2-2026
+/release-notes last month        # window mode — any task completed/active in the range
+```
+> Buckets tasks tagged with `release: v2.4` (or matching the window) into **Shipped / In progress / Carryover**. Runs entirely on local task files. If the Atlassian MCP is registered in your session, `jira:`-keyed items are enriched with canonical title/status/URL — the skill always prints the source line so you know which branch ran.
+
+```
+## Release Notes — v2.4
+
+Source: local + Atlassian MCP
+
+### Shipped (2)
+- [POE-1234] Migrate auth tokens — done 2026-04-12
+- Fix login bug — done 2026-04-14
+
+### In progress (1)
+- [POE-1289] Rate limiter — in-progress
+
+### Carryover / blocked (1)
+- [POE-1301] API rate limiting — blocked on infra approval
+```
+
+> Tag tasks by adding `release: v2.4` to their frontmatter — `/task create` accepts a release label when you mention one ("add this for v2.4"). See the `daily-notes` CLAUDE.md for the full schema.
+
+---
+
+## Role-specific workflows
+
+`notes-integrations` adds one role-targeted skill on top of the `daily-notes` palette:
+
+- **PO / Product** (`role: po` in your profile) — `/release-notes <label>`. See the dedicated example above. Works with or without the Atlassian MCP.
+
+Manager-oriented role skills (`/one-on-one-prep`, `/team-recap`) live in `daily-notes` and are 100% local — they don't need any MCP. See the `daily-notes` README for those.
 
 ---
 

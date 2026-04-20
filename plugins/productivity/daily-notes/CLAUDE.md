@@ -18,8 +18,8 @@ Copy this block into `~/.claude/CLAUDE.md` and fill in your values:
 
 | Field | Required | Default | Description |
 |---|---|---|---|
-| `role` | No | — | Free text. Helps Claude tailor language — no behavioral effect. |
-| `track_contacts` | No | `false` | **Main gate.** Set to `true` to enable per-person meeting routing and contact logs. |
+| `role` | No | `ic` | **Recognized values:** `ic`, `manager`, `po`, `other`. Any free text (e.g. `Software Engineer`, `Product Designer`) is treated as `ic`. Controls which role-specific skills are surfaced and shapes tone in `/start`, `/wrap-up`. `manager` unlocks `/one-on-one-prep` and `/team-recap`; `po` surfaces `/release-notes` in standups and hints. See the "What `role` changes" section below for the full behavior table. |
+| `track_contacts` | No | `false` | **Main gate.** Set to `true` to enable per-person meeting routing and contact logs. Required by `/one-on-one-prep` and `/team-recap`. |
 | `contacts_folder` | No | `People` | Folder name for per-person notes (e.g. `People`, `Clients`, `Advisors`). |
 | `recurring_meetings_label` | No | `1:1` | Label used to identify recurring per-person meetings in transcripts (e.g. `1:1`, `check-in`, `sync`). |
 | `macos_notifications` | No | `false` | Set to `true` to enable native macOS notifications when running `/reminders`. Fires one notification per overdue/due-today task; groups due-soon and stale items. |
@@ -27,6 +27,48 @@ Copy this block into `~/.claude/CLAUDE.md` and fill in your values:
 | `obsidian_tasks` | No | `false` | Set to `true` to add Tasks-plugin emoji syntax (`📅 ⏫ 🔼`) inside task files. Requires the **Tasks** community plugin in Obsidian. Only meaningful when `obsidian: true`. |
 | `gcal` | No | `false` | Set to `true` to enable Google Calendar enrichment in `/start` (agenda block) and the `notes-integrations` skills `/calendar` and `/meeting-reminder`. Requires a Google Calendar MCP configured in your Claude Code session. |
 | `auto_start_suggestion` | No | `true` | Controls the `SessionStart` hook nudge. When a Claude Code session opens inside a daily-notes vault, the hook injects a one-line reminder to run `/start` (and a summary of open tasks + Scratch Pad state). Set to `false` to silence the nudge — the hook exits silently and no context is injected. The companion `Stop` hook (one nudge per session to run `/wrap-up` after 30+ min of active work) is always on; end a session fresh to reset its per-session flag. |
+
+## What `role` changes
+
+The `role` field has four recognized values. Any other string is normalized to `ic`.
+
+| Value | Role-specific skills surfaced | Behavior differences |
+|---|---|---|
+| `ic` | — (default skill palette) | Plain tone in `/start` and `/wrap-up`. |
+| `manager` | `/one-on-one-prep`, `/team-recap` | `/start` includes a "Direct reports to check on" nudge if any `{contacts_folder}/*/log.md` has `report: true` and hasn't been updated recently. `/wrap-up` asks whether any 1:1 notes need filing. |
+| `po` | `/release-notes` (from `notes-integrations`) | `/start` surfaces tasks with `release:` labels grouped by label. `/wrap-up` asks whether the release cut is affected by today's changes. |
+| `other` | — | Same as `ic`. Set this if you want to silence the `ic` default label. |
+
+Skills listed above still work for any role — the `role` field just controls whether they're *surfaced* in `/start` and `/wrap-up` nudges. You can always invoke them directly.
+
+## Direct-report tracking — `report: true` in `log.md` frontmatter
+
+For `/team-recap` and `/one-on-one-prep` to treat a person as a direct report, add a frontmatter block at the top of their `{contacts_folder}/<Name>/log.md`:
+
+```markdown
+---
+report: true
+---
+
+## <existing log entries below>
+```
+
+Only contacts with `report: true` are included in `/team-recap`. `/one-on-one-prep <name>` works for anyone in `{contacts_folder}/` regardless of the field — the field gates bulk iteration, not per-person prep.
+
+## Release labels — `release:` in task frontmatter
+
+`/release-notes` (in `notes-integrations`) buckets tasks by a free-text release label set in task frontmatter:
+
+```yaml
+---
+status: in-progress
+priority: high
+jira: POE-1234
+release: v2.4
+---
+```
+
+The label is a free string — pick a convention your team recognizes (`v2.4`, `Q2-2026`, `april-release`). `/task create` and `/task update` accept a `release:` value when you mention one (e.g. "for the v2.4 release"). `/release-notes v2.4` aggregates all tasks with an exact matching label.
 
 ## What `obsidian: true` unlocks
 
@@ -73,11 +115,22 @@ Without `track_contacts: true`, all meetings route to `Meetings/` and no per-per
 **Engineering Manager**
 ```markdown
 ## Daily Notes Plugin Profile
-- role: Engineering Manager
+- role: manager
 - track_contacts: true
 - contacts_folder: People
 - recurring_meetings_label: 1:1
 ```
+> Use `role: manager` (not `Engineering Manager`) to enable `/one-on-one-prep` and `/team-recap` nudges in `/start`. Add `report: true` to each direct report's `log.md` frontmatter.
+
+**Product Manager / PO**
+```markdown
+## Daily Notes Plugin Profile
+- role: po
+- track_contacts: true
+- contacts_folder: People
+- recurring_meetings_label: 1:1
+```
+> `role: po` surfaces `/release-notes` in `/start` and groups open tasks by `release:` label.
 
 **Management Consultant**
 ```markdown

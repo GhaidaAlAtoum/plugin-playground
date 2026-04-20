@@ -20,6 +20,7 @@ flowchart TB
         tn["/enrich-tickets"]
         mc["/enrich-meeting"]
         recap["/recap"]
+        rn["/release-notes"]
         cal["/calendar"]
         mr["/meeting-reminder"]
     end
@@ -38,6 +39,8 @@ flowchart TB
     UB --> mc --> MF
     TF & MF & DN --> recap
     AT -.->|optional| recap
+    TF --> rn
+    AT -.->|optional enrichment| rn
     GC --> cal --> MF
     GC --> mr --> MF
 
@@ -64,7 +67,7 @@ flowchart LR
 
 - **Do not bundle MCP server configs** in `plugin.json`. This plugin must not conflict with other marketplaces (e.g. `poe-foundation-plugin`) that ship the same Atlassian or Unblocked MCPs.
 - Each skill must check MCP availability at the start of its run and fail with a clear message — never silently degrade in ways that corrupt local files.
-- `/recap` is the only skill with no MCP hard dependency — Atlassian is offered as optional enhancement after the base report is generated.
+- `/recap` and `/release-notes` have no MCP hard dependency — Atlassian is offered as optional enhancement on top of a local-only base report. Both must always run (and print a source line) even when no MCP is registered.
 - **Google Calendar MCP:** `/calendar`, `/meeting-reminder`, and the optional agenda block in `daily-notes` `/start` call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes `list_events` with this signature. If a user's MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message — the rest of the plugin is unaffected.
 
 ### Status mapping — Jira ↔ local

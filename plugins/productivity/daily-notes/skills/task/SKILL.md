@@ -38,7 +38,7 @@ Brief description (1-2 sentences).
 
 **Status values:** `open`, `in-progress`, `in-review`, `blocked`, `done`
 **Priority values:** `high`, `medium`, `low`
-**Optional fields:** `due`, `scheduled`, `completedDate` (only for `done` tasks), `jira:`, `jira_url:`
+**Optional fields:** `due`, `scheduled`, `completedDate` (only for `done` tasks), `jira:`, `jira_url:`, `release:` (free-text label used by `/release-notes` to bucket tasks into a named release, e.g. `release: v2.4`)
 
 **Obsidian profile check:** If `obsidian: true` is set in the Daily Notes Plugin Profile, add `created: YYYY-MM-DD` and `type: task` to the frontmatter. If `obsidian_tasks: true` is also set, append a Tasks-plugin checkbox at the end of the task body:
 ```
@@ -59,10 +59,12 @@ Priority emoji: `high` → `🔼`, `medium` → (omit), `low` → `🔽`. Only i
    Priority:  <high/medium/low>
    Due:       <date or "not set">
    Scheduled: <date or "not set">
+   Release:   <label or "not set">
    ```
 5. If a due date cannot be inferred, ask for it — never skip this step even in bulk workflows.
-6. Wait for **accept**, **reject**, or **adjust** before writing the file.
-7. On acceptance, write the file to `Tasks/`.
+6. If the user's phrasing mentions a release (e.g. "for v2.4", "Q2 release"), populate the `release:` field with that label and show it in the proposal. Otherwise omit it.
+7. Wait for **accept**, **reject**, or **adjust** before writing the file.
+8. On acceptance, write the file to `Tasks/`.
 
 ---
 

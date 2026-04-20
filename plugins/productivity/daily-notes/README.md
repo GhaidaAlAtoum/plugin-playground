@@ -23,6 +23,8 @@ Works out of the box for anyone. Optionally enable per-person contact tracking b
 | Morning standup | `/start` | Lists open tasks, suggests today's focus, flags a loaded Scratch Pad. Auto-enriches with live Jira status and today's GCal agenda when those MCPs are available. |
 | Sync notes | `/sync` | Processes Scratch Pad, summarizes new meeting notes, routes talking points, creates tasks, writes daily note |
 | Meeting prep | `/prep <name>` | Quick-reference sheet before a meeting: talking points, recent history, related tasks |
+| 1:1 prep | `/one-on-one-prep <name>` | Structured 1:1 prep: since-last-1:1, open threads, suggested topics, growth prompts. Optionally appends to the next 1:1 note. Needs `track_contacts: true`. |
+| Team recap | `/team-recap <window>` | Manager-oriented per-direct-report summary across a time window: activity, blockers, 1:1 cadence, attention flags. Needs `track_contacts: true` and `report: true` in each report's `log.md`. |
 | Manage tasks | `/task [verb]` | Single entry point — `create`, `list` (default), `update`, `archive`. E.g. `/task create`, `/task list high`, `/task update`, `/task archive 14` |
 | Reminders | `/reminders` | Scans tasks for overdue, due today, due soon, stale in-progress — with optional macOS notifications |
 | Talking points | `/talking-points` | View and manage all talking points grouped by person — add, remove, or clear inline |
@@ -193,6 +195,29 @@ End of day
   /wrap-up         — close out tasks, finalize daily note
   /task archive    — clean up done tasks (weekly or as needed)
 ```
+
+---
+
+## Role-specific workflows
+
+Set `role:` in your Daily Notes Plugin Profile to one of `ic`, `manager`, `po`, `other`. Unrecognized strings are normalized to `ic`.
+
+**Manager** (`role: manager` + `track_contacts: true`)
+```
+/one-on-one-prep Sarah         # structured 1:1 prep
+/team-recap last week          # per-direct-report summary
+```
+> Mark each direct report by adding `report: true` to their `{contacts_folder}/<Name>/log.md` frontmatter. `/team-recap` iterates only over those entries.
+
+**PO / Product** (`role: po`)
+```
+/release-notes v2.4            # from notes-integrations — local-first, optional Jira enrichment
+```
+> Tag tasks with `release: v2.4` in their frontmatter. `/release-notes <label>` aggregates into Shipped / In progress / Carryover buckets. If the Atlassian MCP is registered, Jira titles and URLs are fetched; otherwise the skill runs on local task files only.
+
+**IC** (`role: ic` or unset) — the default palette. `/start`, `/sync`, `/task`, `/wrap-up`.
+
+All skills above work regardless of `role` — the field only controls which ones get surfaced as nudges in `/start`.
 
 ---
 

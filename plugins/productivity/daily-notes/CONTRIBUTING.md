@@ -32,6 +32,15 @@ flowchart LR
     WU -->|updates| TF
     WU -->|writes| DN
     WU -->|clears| SP
+
+    PF -->|reads| OOOP["/one-on-one-prep"]
+    TP -->|reads| OOOP
+    TF -->|reads| OOOP
+    OOOP -.->|optional append| PF
+
+    PF -->|reads| TR["/team-recap"]
+    TF -->|reads| TR
+    MF -->|reads| TR
 ```
 
 ### Task frontmatter schema
@@ -45,11 +54,28 @@ priority: high | medium | low
 due: YYYY-MM-DD          # optional
 scheduled: YYYY-MM-DD   # optional
 completedDate: YYYY-MM-DD # set when status → done
+jira: POE-1234          # optional — links to a Jira issue
+jira_url: https://...   # optional — canonical Jira URL
+release: v2.4           # optional — free-text release label consumed by /release-notes
 tags: []
 ---
 ```
 
 `in-review` and `blocked` are valid statuses — all skills that read or write `status` must handle all five values.
+
+The `release:` field is a **free-text label** — exact string matching is used by `/release-notes <label>`. No validation beyond "a string." Skills that write tasks must never invent a label; only set `release:` if the user mentioned one.
+
+### Contact log frontmatter — `People/<Name>/log.md`
+
+Per-person log files accept an optional YAML frontmatter block. The only recognized field is:
+
+```yaml
+---
+report: true
+---
+```
+
+`report: true` marks a contact as a direct report. `/team-recap` iterates only over contacts with this field. `/one-on-one-prep` works regardless. No other fields are consumed by any skill — the rest of the log is free-form `## <heading>` + date + body entries.
 
 File modification time (`mtime`) is used as a proxy for "last updated" — there is no explicit `lastUpdated` field. Skills that detect stale tasks (e.g. `/reminders`) rely on this.
 
@@ -59,8 +85,8 @@ Skills read these fields at runtime via the "Daily Notes Plugin Profile" block i
 
 | Field | Type | Default | Consumed by |
 |---|---|---|---|
-| `role` | string | — | `/start`, `/wrap-up` (tone only) |
-| `track_contacts` | bool | false | `/sync`, `/prep`, `/recap` |
+| `role` | enum `ic \| manager \| po \| other` | `ic` | `/start`, `/wrap-up` (tone + role-specific nudges); gates which skills are surfaced in hints. Any unrecognized string is normalized to `ic`. |
+| `track_contacts` | bool | false | `/sync`, `/prep`, `/recap`, `/one-on-one-prep`, `/team-recap` |
 | `contacts_folder` | string | `People` | `/sync`, `/prep` |
 | `recurring_meetings_label` | string | `1:1` | `/sync` |
 | `macos_notifications` | bool | false | `/reminders` |
