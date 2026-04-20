@@ -55,6 +55,6 @@ Requires the Atlassian MCP to be configured in your Claude Code session.
 ## Rules
 
 - Never overwrite an existing task file.
-- If the Atlassian MCP is not available, say so and stop — do not guess or fabricate ticket data.
+- If the Atlassian MCP is not available, print: `⚠️  Atlassian MCP not available in this session — /jira-pull needs live Jira access. Run /doctor to see which integrations are detected, or add an Atlassian MCP in your Claude Code settings.` and stop. Never guess or fabricate ticket data.
 - Status mapping: Use `statusCategory` for broad mapping — `To Do` category (includes "Ready to Develop", "Open", etc.) → `open`; `In Progress` category (includes "In Progress", "In Review", "Blocked", etc.) → `in-progress`; `Done` category → skip entirely. If `statusCategory` is unavailable, fall back to: exact match `In Progress` or `In Review` → `in-progress`, everything else non-Done → `open`.
 - Priority mapping: Jira `Highest`/`High` → `high`, `Medium` → `medium`, `Low`/`Lowest` → `low`.

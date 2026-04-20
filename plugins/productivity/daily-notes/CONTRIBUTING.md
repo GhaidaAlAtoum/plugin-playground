@@ -65,9 +65,29 @@ Skills read these fields at runtime via the "Daily Notes Plugin Profile" block i
 | `recurring_meetings_label` | string | `1:1` | `/sync` |
 | `macos_notifications` | bool | false | `/reminders` |
 
+### Error messages — standard pattern
+
+When a skill depends on something that's not available (MCP, macOS permission, missing profile field), it must surface the failure explicitly — never silent degradation. Use this exact pattern so users learn the shape and know where to look:
+
+```
+⚠️  <what's missing> — <what's affected>. Run /doctor to diagnose.
+```
+
+Examples:
+- `⚠️  Atlassian MCP not available in this session — /jira-pull needs live Jira access. Run /doctor to see which integrations are detected, or add an Atlassian MCP in your Claude Code settings.`
+- `⚠️  macOS notifications unavailable — osascript call failed. Run /doctor to diagnose …`
+- `⚠️  Google Calendar MCP not available in this session — agenda skipped. Run /doctor …`
+
+Rules:
+1. **Never silently degrade.** If a feature is skipped, the user has to be told — even if the base skill still produces useful output.
+2. **Point to /doctor.** Every message ends with "Run /doctor to …" so users learn one diagnostic entry point.
+3. **Never fabricate data** to fill the gap (e.g. don't guess calendar events or ticket statuses).
+4. **Don't prompt the user to install the missing MCP.** This plugin never manages MCP config — only detects it.
+
 ### Adding a new skill
 
 1. Create `skills/<skill-name>/SKILL.md` with YAML frontmatter (`description:`) and natural-language steps.
 2. Update `README.md` — add to skills table and usage examples.
 3. Update this file — add the skill to the data flow diagram if it reads or writes any files.
-4. Bump the patch or minor version in `plugin.json`.
+4. Follow the error-message pattern above for every external dependency.
+5. Bump the patch or minor version in `plugin.json`.

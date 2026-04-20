@@ -232,3 +232,7 @@ Requires a Google Calendar MCP configured in your Claude Code session and `gcal:
 claude plugin marketplace add ghaidaatoum/plugin-playground
 ```
 Then install both `daily-notes` and `notes-integrations` from the **Discover** tab in `/plugin`.
+
+After installing, run `/init` once (provided by `daily-notes`) to scaffold your notes folder and profile. Then run `/doctor` — it reports which of the optional MCPs this plugin uses (Atlassian, Unblocked, Google Calendar) are detected in your Claude Code session. Absent MCPs are never errors; the corresponding skills simply stay unavailable.
+
+> **Never-bundled MCPs.** This plugin does not ship, prompt for, or install any MCP server. Add MCPs separately via your Claude Code settings — `/doctor` will pick them up automatically on the next run.

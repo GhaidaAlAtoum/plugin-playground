@@ -48,6 +48,6 @@ Requires the Unblocked MCP to be configured in your Claude Code session.
 ## Rules
 
 - Read-only until the user approves the append in step 4.
-- If the Unblocked MCP is not available, say so and stop.
+- If the Unblocked MCP is not available, print: `⚠️  Unblocked MCP not available in this session — this skill enriches meeting notes with Unblocked context and can't run without it. Run /doctor to see which integrations are detected.` and stop.
 - If results are sparse or irrelevant, say so — do not pad with filler.
 - Limit context block to what's genuinely useful for the upcoming meeting.

@@ -73,7 +73,7 @@ Check for urgent and time-sensitive tasks and surface them as a reminder summary
      `osascript -e 'display notification "N tasks due in the next 3 days" with title "daily-notes" subtitle "Due soon"' && osascript -e 'beep 1'`
    - One grouped notification if there are **stale in-progress** items (1 beep):
      `osascript -e 'display notification "N tasks stalled — check in?" with title "daily-notes" subtitle "Stale in progress"' && osascript -e 'beep 1'`
-   - If `osascript` fails or is unavailable, skip silently and note "Notifications unavailable on this system" in chat.
+   - If `osascript` fails or is unavailable, surface it explicitly: print `⚠️  macOS notifications unavailable — osascript call failed. Run /doctor to diagnose (likely: Apple Events permission not granted in System Settings → Privacy & Security → Automation).` Continue with the chat summary — reminders are not lost, only the OS-level notification.
    - If `macos_notifications` is not set or is `false`, skip this step entirely — no `osascript` calls.
 
 6. **Quick actions** (offer after the summary):

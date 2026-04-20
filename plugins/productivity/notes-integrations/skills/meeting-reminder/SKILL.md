@@ -12,7 +12,7 @@ Requires a Google Calendar MCP configured in your Claude Code session.
 
 Also requires `gcal: true` in your Daily Notes Plugin Profile in `~/.claude/CLAUDE.md`.
 
-If the MCP is unavailable, say: "Google Calendar unavailable — check MCP config." and stop.
+If the MCP is unavailable, print: `⚠️  Google Calendar MCP not available in this session — meeting reminders require live calendar data. Run /doctor to see which integrations are detected.` and stop.
 
 ## Steps
 

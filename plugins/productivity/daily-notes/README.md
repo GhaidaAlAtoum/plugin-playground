@@ -18,6 +18,8 @@ Works out of the box for anyone. Optionally enable per-person contact tracking b
 
 | Skill | Invoke | What it does |
 |-------|--------|--------------|
+| First-run setup | `/init` | Interactive scaffold: folder tree, starter files, profile block. Idempotent. |
+| Health check | `/doctor` | Verifies folder structure, profile fields, and detects which optional MCPs are available. |
 | Morning standup | `/start` | Lists open tasks, suggests today's focus, flags a loaded Scratch Pad |
 | Sync notes | `/sync` | Processes Scratch Pad, summarizes new meeting notes, routes talking points, creates tasks, writes daily note |
 | Meeting prep | `/prep <name>` | Quick-reference sheet before a meeting: talking points, recent history, related tasks |
@@ -308,48 +310,32 @@ claude plugin marketplace add ghaidaatoum/plugin-playground
 ```
 Then install **daily-notes** from the **Discover** tab in `/plugin`.
 
-### 2. Scaffold your notes folder
+### 2. Run `/init`
 
-Pick a dedicated folder and run Claude Code from it. Create the expected structure:
+Open Claude Code and run:
 
-```bash
-mkdir -p ~/Documents/notes/{Tasks,Meetings,People,"Daily Notes"}
-touch ~/Documents/notes/"Scratch Pad.md"
-touch ~/Documents/notes/"Talking Points.md"
+```
+/init
 ```
 
-> Adjust `~/Documents/notes/` to wherever you want your notes to live.
+`/init` walks you through a short interactive setup: picks a notes folder (default `~/Documents/notes`), creates the folder tree (`Tasks/`, `Meetings/`, `Daily Notes/`, optional `People/`), seeds `Scratch Pad.md` + `Talking Points.md` + `.claude/memory.md`, and writes your Daily Notes Plugin Profile into `~/.claude/CLAUDE.md`. No shell commands, no manual file editing.
 
-### 3. Create the memory file
+It's idempotent — rerunning against an existing vault offers reuse instead of overwriting.
 
-`/start` reads from `.claude/memory.md` and `/wrap-up` writes to it — this is how context carries between sessions.
+### 3. Check the install with `/doctor`
 
-```bash
-mkdir -p ~/Documents/notes/.claude
-cat > ~/Documents/notes/.claude/memory.md << 'EOF'
-# Memory
-
-## Current Focus
-<!-- Active projects and top priorities -->
-
-## People
-<!-- Key collaborators and relevant context -->
-
-## Follow-ups
-<!-- Open threads, pending responses, things to chase -->
-
-## Decisions & Context
-<!-- Recent decisions, preferences, important context -->
-EOF
+```
+/doctor
 ```
 
-### 4. Open Claude Code in your notes folder
+`/doctor` reports: folder structure ✓, profile fields ✓, which optional MCPs are detected, and exact fix steps for anything missing. Absent MCPs (Atlassian, Unblocked, Google Calendar) are fine — they're optional upgrades. Run `/doctor` any time something feels off.
 
-```bash
-cd ~/Documents/notes && claude
+### 4. Start your day
+
 ```
-
-Run `/start` — you're ready.
+cd <your-notes-folder> && claude
+/start
+```
 
 ### 5. (Optional) Open in Obsidian
 
