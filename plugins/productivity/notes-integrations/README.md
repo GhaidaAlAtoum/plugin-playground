@@ -12,13 +12,13 @@ MCP-powered enrichment layer for the `daily-notes` plugin. Bridges your local no
 |-------|--------|--------------|--------------|
 | Pull Jira tickets | `/jira-pull` | Atlassian | Fetches your open/in-progress Jira issues → creates task files in `Tasks/` |
 | Push to Jira | `/jira-push` | Atlassian | Surface status drift between local tasks and Jira — choose which source of truth wins, per task |
-| Enrich meeting notes | `/meeting-context [name] [window?]` | Unblocked | Surfaces related PRs (last 7d), Slack threads (last 3d), and decisions for a person or topic → appends to their meeting note. Pass a window to override: `/meeting-context Sarah 30d` |
-| Standup + Jira | `/start-jira` | Atlassian | Like `daily-notes` `/start` but also shows live Jira ticket statuses and flags local/remote drift |
-| Enrich Scratch Pad | `/ticket-note` | Atlassian | Finds bare ticket keys in `Scratch Pad.md` (e.g. `POE-123`) and enriches them with title, status, and description before `/sync` |
+| Enrich meeting notes | `/enrich-meeting [name] [window?]` | Unblocked | Surfaces related PRs (last 7d), Slack threads (last 3d), and decisions for a person or topic → appends to their meeting note. Pass a window to override: `/enrich-meeting Sarah 30d` |
+| Enrich Scratch Pad | `/enrich-tickets` | Atlassian | Finds bare ticket keys in `Scratch Pad.md` (e.g. `POE-123`) and enriches them with title, status, and description before `/sync` |
 | Time recap | `/recap` | None (Atlassian optional) | Aggregates daily notes, meetings, and tasks over a time window — last week, last month, last quarter, or a custom date range |
 | Calendar agenda | `/calendar` | Google Calendar MCP | Today's and upcoming GCal meetings — flags which have no notes yet, offers to create a blank meeting note |
-| Standup + GCal | `/start-gcal` | Google Calendar MCP | Morning standup: local tasks + GCal agenda combined; flags meeting-heavy days and prep needs |
 | Meeting reminder | `/meeting-reminder` | Google Calendar MCP | Nudge for meetings that ended in the last 2 hours with no notes written |
+
+> Morning standup is in `daily-notes` `/start` — it now auto-detects Atlassian and Google Calendar MCPs and enriches the standup accordingly. The old `/start-jira` and `/start-gcal` are gone as of v2.0.0.
 
 ---
 
@@ -30,9 +30,9 @@ flowchart TD
     Q2{"Want PRs, Slack threads,\nand past decisions pulled\ninto your meeting notes?"}
     Q3{"Want periodic recaps —\nlast week, last month,\nlast quarter?"}
 
-    Q1 -->|Yes| A1["✅ Install\nYou'll use: /jira-pull, /jira-push,\n/start-jira, /ticket-note"]
+    Q1 -->|Yes| A1["✅ Install\nYou'll use: /jira-pull, /jira-push,\n/enrich-tickets (plus live Jira in /start)"]
     Q1 -->|No| Q2
-    Q2 -->|Yes| A2["✅ Install\nYou'll use: /meeting-context\n(needs Unblocked MCP)"]
+    Q2 -->|Yes| A2["✅ Install\nYou'll use: /enrich-meeting\n(needs Unblocked MCP)"]
     Q2 -->|No| Q3
     Q3 -->|Yes| A3["✅ Install\nYou'll use: /recap\n(no MCP needed)"]
     Q3 -->|No| A4["⭕ Skip\ndaily-notes alone is enough"]
@@ -46,12 +46,12 @@ These skills slot into the same daily rhythm as `daily-notes` — just with live
 flowchart LR
     subgraph morning["☀️ Morning"]
         jp["/jira-pull\nImport new Jira tickets\ninto Tasks/"]
-        sj["/start-jira\nStandup with live\nJira status included"]
+        sj["/start\n(from daily-notes)\nauto-enriched with live Jira\n+ GCal agenda if MCPs present"]
     end
 
     subgraph day["🔨 During the day"]
-        tn["/ticket-note\nEnrich ticket refs in\nScratch Pad before /sync"]
-        mc["/meeting-context\nPull PRs & decisions\ninto meeting notes"]
+        tn["/enrich-tickets\nEnrich ticket refs in\nScratch Pad before /sync"]
+        mc["/enrich-meeting\nPull PRs & decisions\ninto meeting notes"]
     end
 
     subgraph weekly["📅 Weekly / as needed"]
@@ -72,13 +72,13 @@ These MCPs must be configured in your Claude Code session **before** using the s
 
 | MCP | Used by |
 |-----|---------|
-| Atlassian MCP | `/jira-pull`, `/jira-push`, `/start-jira`, `/ticket-note` |
-| Unblocked MCP | `/meeting-context` |
-| Google Calendar MCP | `/calendar`, `/start-gcal`, `/meeting-reminder` |
+| Atlassian MCP | `/jira-pull`, `/jira-push`, `/enrich-tickets` — plus live Jira status inside `daily-notes` `/start` |
+| Unblocked MCP | `/enrich-meeting` |
+| Google Calendar MCP | `/calendar`, `/meeting-reminder` — plus today's agenda inside `daily-notes` `/start` |
 
 Each skill will tell you clearly if a required MCP is not available, rather than failing silently.
 
-> **Google Calendar MCP compatibility:** The `/calendar`, `/start-gcal`, and `/meeting-reminder` skills call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes a `list_events` tool with this signature — not just any specific implementation. If your MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message; the rest of the plugin is unaffected.
+> **Google Calendar MCP compatibility:** `/calendar`, `/meeting-reminder`, and the optional agenda block in `daily-notes` `/start` call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes a `list_events` tool with this signature — not just any specific implementation. If your MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message; the rest of the plugin is unaffected.
 
 ---
 
@@ -98,7 +98,7 @@ Tasks/POE-1200 — fix-login-bug.md         ← skipped (already exists)
 
 **Prep for a meeting with Unblocked context**
 ```
-/meeting-context Sarah
+/enrich-meeting Sarah
 ```
 > Queries Unblocked for activity related to Sarah — PRs from the last 7 days, Slack threads from the last 3 days, and any decisions or in-progress work (no time limit). Asks before appending a context block to her most recent meeting note:
 ```markdown
@@ -113,14 +113,14 @@ Tasks/POE-1200 — fix-login-bug.md         ← skipped (already exists)
 
 Pass a custom window to go deeper — useful for quarterly reviews or first 1:1s:
 ```
-/meeting-context Sarah 30d
+/enrich-meeting Sarah 30d
 ```
 
 **Morning standup with live Jira status**
 ```
-/start-jira
+/start
 ```
-> Same as `/start` from `daily-notes`, but also checks each task with a `jira:` key against the live Jira status. Flags drift without auto-updating:
+> `/start` lives in `daily-notes`. If the Atlassian MCP is available, it adds live Jira status for every local task with a `jira:` key and flags drift — without auto-updating:
 ```
 [POE-1234] Migrate auth tokens
   Local: in-progress | Jira: In Review ⚠️  — consider updating your task file
@@ -128,7 +128,7 @@ Pass a custom window to go deeper — useful for quarterly reviews or first 1:1s
 
 **Enrich ticket references before syncing**
 ```
-/ticket-note
+/enrich-tickets
 ```
 > Finds bare keys like `POE-4567` in your `Scratch Pad.md`, fetches their title/status/description from Jira, and asks before enriching them in place. Run this before `/sync` so the enriched note gets filed with full context.
 
@@ -187,10 +187,11 @@ Which is correct?
 ```
 Start of day
   /jira-pull         — pull new Jira tickets into Tasks/
-  /start-jira        — standup with live Jira status
+  /start             — standup (auto-includes live Jira status + GCal agenda
+                        when their MCPs are available)
 
 During the day
-  /ticket-note       — enrich bare ticket keys in Scratch Pad before /sync
+  /enrich-tickets    — enrich bare ticket keys in Scratch Pad before /sync
   /sync              — file everything (from daily-notes plugin)
 
 End of week / as needed
@@ -214,9 +215,9 @@ Requires a Google Calendar MCP configured in your Claude Code session and `gcal:
 
 **Morning standup with GCal**
 ```
-/start-gcal
+/start
 ```
-> Combines local tasks + today's GCal agenda. Flags meeting-heavy days and notes if you have talking points for meeting attendees.
+> `/start` lives in `daily-notes`. With `gcal: true` in your profile and a Google Calendar MCP in the session, it appends today's agenda, flags meeting-heavy days, and notes if you have talking points for attendees.
 
 **Capture notes after a meeting**
 ```

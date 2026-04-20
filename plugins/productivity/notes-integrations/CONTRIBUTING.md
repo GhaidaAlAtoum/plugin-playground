@@ -17,12 +17,10 @@ flowchart TB
     subgraph ni["notes-integrations skills"]
         jp["/jira-pull"]
         jpush["/jira-push"]
-        sj["/start-jira"]
-        tn["/ticket-note"]
-        mc["/meeting-context"]
+        tn["/enrich-tickets"]
+        mc["/enrich-meeting"]
         recap["/recap"]
         cal["/calendar"]
-        sgcal["/start-gcal"]
         mr["/meeting-reminder"]
     end
 
@@ -35,15 +33,17 @@ flowchart TB
 
     AT --> jp --> TF
     TF --> jpush --> AT
-    AT -.->|status check| sj -.->|reads| TF
     AT --> tn
     SP --> tn --> SP
     UB --> mc --> MF
     TF & MF & DN --> recap
     AT -.->|optional| recap
     GC --> cal --> MF
-    GC --> sgcal -.->|reads| TF
     GC --> mr --> MF
+
+    %% /start (in daily-notes) reads Atlassian + Google Calendar when available
+    AT -.->|optional, via daily-notes /start| TF
+    GC -.->|optional, via daily-notes /start| TF
 ```
 
 ### Jira sync — data directions
@@ -56,8 +56,8 @@ flowchart LR
 
     J -->|"/jira-pull — import open tickets"| L
     L -->|"/jira-push — resolve drift"| J
-    J -.->|"/start-jira — read-only status check"| L
-    J -->|"/ticket-note — enrich references"| S
+    J -.->|"daily-notes /start — read-only status check"| L
+    J -->|"/enrich-tickets — enrich references"| S
 ```
 
 ### MCP dependency rules
@@ -65,7 +65,7 @@ flowchart LR
 - **Do not bundle MCP server configs** in `plugin.json`. This plugin must not conflict with other marketplaces (e.g. `poe-foundation-plugin`) that ship the same Atlassian or Unblocked MCPs.
 - Each skill must check MCP availability at the start of its run and fail with a clear message — never silently degrade in ways that corrupt local files.
 - `/recap` is the only skill with no MCP hard dependency — Atlassian is offered as optional enhancement after the base report is generated.
-- **Google Calendar MCP:** The three GCal skills (`/calendar`, `/start-gcal`, `/meeting-reminder`) call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes `list_events` with this signature. If a user's MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message — the rest of the plugin is unaffected.
+- **Google Calendar MCP:** `/calendar`, `/meeting-reminder`, and the optional agenda block in `daily-notes` `/start` call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes `list_events` with this signature. If a user's MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message — the rest of the plugin is unaffected.
 
 ### Status mapping — Jira ↔ local
 

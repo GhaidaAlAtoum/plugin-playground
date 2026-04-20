@@ -25,12 +25,12 @@ Copy this block into `~/.claude/CLAUDE.md` and fill in your values:
 | `macos_notifications` | No | `false` | Set to `true` to enable native macOS notifications when running `/reminders`. Fires one notification per overdue/due-today task; groups due-soon and stale items. |
 | `obsidian` | No | `false` | Set to `true` to enable Obsidian-optimised output: callouts, `[[wikilinks]]`, and richer frontmatter (`created`, `type`) across all writing skills. Run `/obsidian-setup` once after enabling. |
 | `obsidian_tasks` | No | `false` | Set to `true` to add Tasks-plugin emoji syntax (`📅 ⏫ 🔼`) inside task files. Requires the **Tasks** community plugin in Obsidian. Only meaningful when `obsidian: true`. |
-| `gcal` | No | `false` | Set to `true` to enable Google Calendar skills in `notes-integrations`: `/calendar`, `/start-gcal`, `/meeting-reminder`. Requires a Google Calendar MCP configured in your Claude Code session. |
+| `gcal` | No | `false` | Set to `true` to enable Google Calendar enrichment in `/start` (agenda block) and the `notes-integrations` skills `/calendar` and `/meeting-reminder`. Requires a Google Calendar MCP configured in your Claude Code session. |
 
 ## What `obsidian: true` unlocks
 
 - **All writing skills** (`/sync`, `/wrap-up`) — output uses Obsidian callouts (`> [!abstract]`, `> [!warning]`, `> [!check]`) for structured sections, and `[[wikilinks]]` for people references. Meeting notes and daily notes get `created: YYYY-MM-DD` and `type:` frontmatter fields for Dataview queries.
-- **`/task-create`** — task files gain `created` and `type: task` frontmatter. If `obsidian_tasks: true` is also set, a Tasks-plugin checkbox line is appended to the task body.
+- **`/task create`** — task files gain `created` and `type: task` frontmatter. If `obsidian_tasks: true` is also set, a Tasks-plugin checkbox line is appended to the task body.
 - **`/start`, `/reminders`** — chat output uses callouts matching urgency (`> [!warning]`, `> [!danger]`, `> [!tip]`).
 - **`/obsidian-setup`** — unlocks the one-time vault scaffold: `Dashboard.md` (Dataview queries), `Templates/Daily Note.md`, `Templates/Meeting Note.md`.
 

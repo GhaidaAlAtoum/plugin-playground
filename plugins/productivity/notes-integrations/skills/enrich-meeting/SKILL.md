@@ -26,7 +26,7 @@ Requires the Unblocked MCP to be configured in your Claude Code session.
 
    Limit to 5-7 most relevant results total.
 
-   **Override**: If the user passes a duration argument (e.g. `/meeting-context Sarah 90d`), apply that window to PRs and Slack threads instead of the defaults.
+   **Override**: If the user passes a duration argument (e.g. `/enrich-meeting Sarah 90d`), apply that window to PRs and Slack threads instead of the defaults.
 
 4. **Present before writing**: Show the context you're about to append:
    ```

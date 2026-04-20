@@ -17,15 +17,15 @@ flowchart LR
     SY --> DN["📁 Daily Notes/"]
     SY -.->|if track_contacts| PF["📁 People/"]
 
-    TF -->|reads| ST["/start  /reminders  /task-list"]
+    TF -->|reads| ST["/start  /reminders  /task list"]
     TP -->|reads| TP_SK["/talking-points"]
     TP_SK -->|edits| TP
     TP -->|reads| PR["/prep"]
     PF -.->|reads| PR
 
-    TF -->|edits| TU["/task-update"]
+    TF -->|edits| TU["/task update"]
     TU -->|writes| TF
-    TF -->|moves| TA["/task-archive"]
+    TF -->|moves| TA["/task archive"]
     TA --> ARC["📁 Tasks/Archive/"]
 
     TF -->|reads| WU["/wrap-up"]

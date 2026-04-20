@@ -20,15 +20,12 @@ Works out of the box for anyone. Optionally enable per-person contact tracking b
 |-------|--------|--------------|
 | First-run setup | `/init` | Interactive scaffold: folder tree, starter files, profile block. Idempotent. |
 | Health check | `/doctor` | Verifies folder structure, profile fields, and detects which optional MCPs are available. |
-| Morning standup | `/start` | Lists open tasks, suggests today's focus, flags a loaded Scratch Pad |
+| Morning standup | `/start` | Lists open tasks, suggests today's focus, flags a loaded Scratch Pad. Auto-enriches with live Jira status and today's GCal agenda when those MCPs are available. |
 | Sync notes | `/sync` | Processes Scratch Pad, summarizes new meeting notes, routes talking points, creates tasks, writes daily note |
 | Meeting prep | `/prep <name>` | Quick-reference sheet before a meeting: talking points, recent history, related tasks |
-| Create task | `/task-create` | Guided task creation with frontmatter (status, priority, due, tags) |
-| List tasks | `/task-list` | Filtered task list by status, priority, or tag |
-| Update task | `/task-update` | Update status, priority, or notes on an existing task |
+| Manage tasks | `/task [verb]` | Single entry point — `create`, `list` (default), `update`, `archive`. E.g. `/task create`, `/task list high`, `/task update`, `/task archive 14` |
 | Reminders | `/reminders` | Scans tasks for overdue, due today, due soon, stale in-progress — with optional macOS notifications |
 | Talking points | `/talking-points` | View and manage all talking points grouped by person — add, remove, or clear inline |
-| Archive tasks | `/task-archive` | Move completed tasks older than N days to Tasks/Archive/ |
 | Obsidian setup | `/obsidian-setup` | One-time vault scaffold: Dashboard.md with Dataview queries, daily note + meeting templates |
 | End of day | `/wrap-up` | Closes out the day: reviews tasks, prompts for wins/blockers, writes daily note summary |
 
@@ -63,15 +60,15 @@ flowchart LR
     subgraph day["🔨 During the day"]
         tp2["/talking-points\nCheck agenda before a meeting"]
         prep["/prep &lt;name&gt;\nQuick context before a 1:1"]
-        tc["/task-create\nCapture something new"]
-        tu["/task-update\nMove a task forward"]
+        tc["/task create\nCapture something new"]
+        tu["/task update\nMove a task forward"]
         sp2["📄 Scratch Pad.md\njot notes during meetings"]
         sync["/sync\nFile everything after"]
     end
 
     subgraph evening["🌙 End of day"]
         wrap["/wrap-up\nClose out & log the day"]
-        arch["/task-archive\nWeekly cleanup"]
+        arch["/task archive\nWeekly cleanup"]
     end
 
     morning --> day
@@ -128,9 +125,10 @@ flowchart LR
 
 **Quick task**
 ```
-/task-create
+/task create
+/task "fix login bug"     # first arg isn't a verb → treated as a title
 ```
-> Walks you through naming the task, setting status/priority/due date, and saves it to `Tasks/`.
+> Walks you through naming the task, setting status/priority/due date, and saves it to `Tasks/`. `/task list`, `/task update`, and `/task archive` share the same entry point — see the skill for the full dispatch.
 
 **Check for urgent tasks**
 ```
@@ -146,8 +144,8 @@ flowchart LR
 
 **Archive old tasks**
 ```
-/task-archive
-/task-archive 14
+/task archive
+/task archive 14
 ```
 > Scans `Tasks/` for completed tasks older than 7 days (or N days if specified). Shows a list and asks before moving anything to `Tasks/Archive/`.
 
@@ -158,11 +156,13 @@ flowchart LR
 ```
 Morning
   /start           — see what's on your plate
+                     (auto-includes live Jira + GCal agenda when those
+                      MCPs are available — no separate command needed)
   /reminders       — check for anything urgent or overdue
 
 During the day
-  /task-create     — capture new work
-  /task-update     — move tasks forward
+  /task create     — capture new work
+  /task update     — move tasks forward
   /talking-points  — review or add agenda items before meetings
   /prep <name>     — quick context before a 1:1
 
@@ -171,10 +171,8 @@ After meetings
 
 End of day
   /wrap-up         — close out tasks, finalize daily note
-  /task-archive    — clean up done tasks (weekly or as needed)
+  /task archive    — clean up done tasks (weekly or as needed)
 ```
-
-If you use the `notes-integrations` plugin with Atlassian MCP, replace `/start` with `/start-jira` for a live Jira status view alongside local tasks.
 
 ---
 

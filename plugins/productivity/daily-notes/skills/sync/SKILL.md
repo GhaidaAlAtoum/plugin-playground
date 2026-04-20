@@ -39,7 +39,7 @@ Process my loose notes and file everything into the right places.
    - On approval, add to `Talking Points.md` under the person's `## Name` header with `(added YYYY-MM-DD)`
    - Create the file with `# Talking Points` header if it doesn't exist
 
-4. **Create Task Files**: For each new action item from steps 1-2 (excluding talking points), propose tasks one at a time using the task-create skill. Do not duplicate — glob `Tasks/*.md` to check first.
+4. **Create Task Files**: For each new action item from steps 1-2 (excluding talking points), propose tasks one at a time using the `/task create` skill. Do not duplicate — glob `Tasks/*.md` to check first.
 
 5. **Daily Note**: Create or update today's note at `Daily Notes/YYYY-MM-DD.md`.
 
