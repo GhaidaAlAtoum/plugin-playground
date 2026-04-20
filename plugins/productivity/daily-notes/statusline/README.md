@@ -129,6 +129,5 @@ If you're extending this script (PRs welcome), keep these non-negotiable:
 
 ## Out of scope
 
-- Meeting-countdown signal (`⏰ 14:00 Sync w/ Sarah`) — requires a Google Calendar MCP plus 5-minute caching. Tracked for v2.
 - "Focus task" display (`▶ <task name>`) — needs a writer skill to set the focus, not shipped yet.
 - Role-specific signals (manager-only stale-report count, PO-only release-label count) — kept out of v1 so the bar has one shape for everyone. Revisit once there's usage data.

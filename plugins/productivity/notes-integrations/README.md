@@ -16,10 +16,8 @@ MCP-powered enrichment layer for the `daily-notes` plugin. Bridges your local no
 | Enrich Scratch Pad | `/enrich-tickets` | Atlassian | Finds bare ticket keys in `Scratch Pad.md` (e.g. `POE-123`) and enriches them with title, status, and description before `/sync` |
 | Time recap | `/recap` | None (Atlassian optional) | Aggregates daily notes, meetings, and tasks over a time window — last week, last month, last quarter, or a custom date range |
 | Release notes | `/release-notes <label-or-window>` | None (Atlassian optional) | Changelog-style report from tasks tagged with a `release:` label (or matched by time window). Local-first; optional Atlassian enrichment for `jira:`-keyed items. Always prints which source was used. |
-| Calendar agenda | `/calendar` | Google Calendar MCP | Today's and upcoming GCal meetings — flags which have no notes yet, offers to create a blank meeting note |
-| Meeting reminder | `/meeting-reminder` | Google Calendar MCP | Nudge for meetings that ended in the last 2 hours with no notes written |
 
-> Morning standup is in `daily-notes` `/start` — it now auto-detects Atlassian and Google Calendar MCPs and enriches the standup accordingly. The old `/start-jira` and `/start-gcal` are gone as of v2.0.0.
+> Morning standup is in `daily-notes` `/start` — it auto-detects the Atlassian MCP and enriches the standup accordingly. The old `/start-jira` is gone as of v2.0.0.
 
 ---
 
@@ -47,7 +45,7 @@ These skills slot into the same daily rhythm as `daily-notes` — just with live
 flowchart LR
     subgraph morning["☀️ Morning"]
         jp["/jira-pull\nImport new Jira tickets\ninto Tasks/"]
-        sj["/start\n(from daily-notes)\nauto-enriched with live Jira\n+ GCal agenda if MCPs present"]
+        sj["/start\n(from daily-notes)\nauto-enriched with live Jira\nwhen the Atlassian MCP is present"]
     end
 
     subgraph day["🔨 During the day"]
@@ -75,11 +73,8 @@ These MCPs must be configured in your Claude Code session **before** using the s
 |-----|---------|
 | Atlassian MCP | `/jira-pull`, `/jira-push`, `/enrich-tickets` — plus live Jira status inside `daily-notes` `/start` |
 | Unblocked MCP | `/enrich-meeting` |
-| Google Calendar MCP | `/calendar`, `/meeting-reminder` — plus today's agenda inside `daily-notes` `/start` |
 
 Each skill will tell you clearly if a required MCP is not available, rather than failing silently.
-
-> **Google Calendar MCP compatibility:** `/calendar`, `/meeting-reminder`, and the optional agenda block in `daily-notes` `/start` call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes a `list_events` tool with this signature — not just any specific implementation. If your MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message; the rest of the plugin is unaffected.
 
 ---
 
@@ -226,8 +221,8 @@ Which is correct?
 ```
 Start of day
   /jira-pull         — pull new Jira tickets into Tasks/
-  /start             — standup (auto-includes live Jira status + GCal agenda
-                        when their MCPs are available)
+  /start             — standup (auto-includes live Jira status when the
+                        Atlassian MCP is available)
 
 During the day
   /enrich-tickets    — enrich bare ticket keys in Scratch Pad before /sync
@@ -240,32 +235,6 @@ End of week / as needed
 
 ---
 
-## Google Calendar integration
-
-Requires a Google Calendar MCP configured in your Claude Code session and `gcal: true` in your Daily Notes Plugin Profile.
-
-> **Compatibility:** These skills use `list_events` with `timeMin`, `timeMax`, and `maxResults`. Any Google Calendar MCP that exposes a `list_events` tool with this signature will work.
-
-**View today's agenda and create meeting notes**
-```
-/calendar
-```
-> Lists today's GCal meetings, flags which have no local notes yet, and offers to create blank meeting note files.
-
-**Morning standup with GCal**
-```
-/start
-```
-> `/start` lives in `daily-notes`. With `gcal: true` in your profile and a Google Calendar MCP in the session, it appends today's agenda, flags meeting-heavy days, and notes if you have talking points for attendees.
-
-**Capture notes after a meeting**
-```
-/meeting-reminder
-```
-> Checks for meetings that ended in the last 2 hours with no notes. Prompts you to capture while it's fresh — you can dictate raw notes and it will structure them.
-
----
-
 ## Installation
 
 ```bash
@@ -273,6 +242,6 @@ claude plugin marketplace add ghaidaatoum/plugin-playground
 ```
 Then install both `daily-notes` and `notes-integrations` from the **Discover** tab in `/plugin`.
 
-After installing, run `/init` once (provided by `daily-notes`) to scaffold your notes folder and profile. Then run `/doctor` — it reports which of the optional MCPs this plugin uses (Atlassian, Unblocked, Google Calendar) are detected in your Claude Code session. Absent MCPs are never errors; the corresponding skills simply stay unavailable.
+After installing, run `/init` once (provided by `daily-notes`) to scaffold your notes folder and profile. Then run `/doctor` — it reports which of the optional MCPs this plugin uses (Atlassian, Unblocked) are detected in your Claude Code session. Absent MCPs are never errors; the corresponding skills simply stay unavailable.
 
 > **Never-bundled MCPs.** This plugin does not ship, prompt for, or install any MCP server. Add MCPs separately via your Claude Code settings — `/doctor` will pick them up automatically on the next run.

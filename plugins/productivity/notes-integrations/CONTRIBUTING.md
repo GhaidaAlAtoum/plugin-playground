@@ -11,7 +11,6 @@ flowchart TB
     subgraph ext["External MCPs (user-configured)"]
         AT["☁️ Atlassian (Jira)"]
         UB["☁️ Unblocked"]
-        GC["☁️ Google Calendar MCP"]
     end
 
     subgraph ni["notes-integrations skills"]
@@ -21,8 +20,6 @@ flowchart TB
         mc["/enrich-meeting"]
         recap["/recap"]
         rn["/release-notes"]
-        cal["/calendar"]
-        mr["/meeting-reminder"]
     end
 
     subgraph local["Local files (shared with daily-notes)"]
@@ -41,12 +38,9 @@ flowchart TB
     AT -.->|optional| recap
     TF --> rn
     AT -.->|optional enrichment| rn
-    GC --> cal --> MF
-    GC --> mr --> MF
 
-    %% /start (in daily-notes) reads Atlassian + Google Calendar when available
+    %% /start (in daily-notes) reads Atlassian when available
     AT -.->|optional, via daily-notes /start| TF
-    GC -.->|optional, via daily-notes /start| TF
 ```
 
 ### Jira sync — data directions
@@ -68,7 +62,6 @@ flowchart LR
 - **Do not bundle MCP server configs** in `plugin.json`. This plugin must not conflict with other marketplaces (e.g. `poe-foundation-plugin`) that ship the same Atlassian or Unblocked MCPs.
 - Each skill must check MCP availability at the start of its run and fail with a clear message — never silently degrade in ways that corrupt local files.
 - `/recap` and `/release-notes` have no MCP hard dependency — Atlassian is offered as optional enhancement on top of a local-only base report. Both must always run (and print a source line) even when no MCP is registered.
-- **Google Calendar MCP:** `/calendar`, `/meeting-reminder`, and the optional agenda block in `daily-notes` `/start` call `list_events` with `timeMin`, `timeMax`, and `maxResults` parameters. They work with any Google Calendar MCP that exposes `list_events` with this signature. If a user's MCP uses a different tool name, those skills will fail with a clear "Google Calendar unavailable" message — the rest of the plugin is unaffected.
 
 ### Status mapping — Jira ↔ local
 

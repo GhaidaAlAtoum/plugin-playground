@@ -9,7 +9,7 @@
   "homepage": "https://github.com/ghaidaatoum/plugin-playground/tree/main/plugins/productivity/notes-integrations",
   "repository": "https://github.com/ghaidaatoum/plugin-playground",
   "license": "MIT",
-  "keywords": ["productivity", "jira", "unblocked", "google-calendar", "mcp", "notes-integrations"],
+  "keywords": ["productivity", "jira", "unblocked", "mcp", "notes-integrations"],
   "dependencies": [
     { "name": "daily-notes" }
   ]

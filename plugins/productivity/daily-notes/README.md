@@ -20,7 +20,7 @@ Works out of the box for anyone. Optionally enable per-person contact tracking b
 |-------|--------|--------------|
 | First-run setup | `/init` | Interactive scaffold: folder tree, starter files, profile block. Idempotent. |
 | Health check | `/doctor` | Verifies folder structure, profile fields, and detects which optional MCPs are available. |
-| Morning standup | `/start` | Lists open tasks, suggests today's focus, flags a loaded Scratch Pad. Auto-enriches with live Jira status and today's GCal agenda when those MCPs are available. |
+| Morning standup | `/start` | Lists open tasks, suggests today's focus, flags a loaded Scratch Pad. Auto-enriches with live Jira status when the Atlassian MCP is available. |
 | Sync notes | `/sync` | Processes Scratch Pad, summarizes new meeting notes, routes talking points, creates tasks, writes daily note |
 | Meeting prep | `/prep <name>` | Quick-reference sheet before a meeting: talking points, recent history, related tasks |
 | 1:1 prep | `/one-on-one-prep <name>` | Structured 1:1 prep: since-last-1:1, open threads, suggested topics, growth prompts. Optionally appends to the next 1:1 note. Needs `track_contacts: true`. |
@@ -178,8 +178,8 @@ Would clear
 ```
 Morning
   /start           — see what's on your plate
-                     (auto-includes live Jira + GCal agenda when those
-                      MCPs are available — no separate command needed)
+                     (auto-includes live Jira when the Atlassian MCP is
+                      available — no separate command needed)
   /reminders       — check for anything urgent or overdue
 
 During the day
@@ -289,7 +289,7 @@ The plugin assumes macOS and leans into it. None of the features below are requi
 |---|---|---|
 | **Native notifications** | `/reminders` fires one notification per overdue / due-today task, groups due-soon and stale items, and (for overdues) pops up **action-button dialogs** (Mark done / Snooze 1h / Dismiss) that write straight back to the task file. | `macos_notifications: true` in your profile. |
 | **Ambient statusline** | A persistent signal in the Claude Code status bar: `📓` in a clean vault, `📓 🔴3` when you have overdue tasks, `📓 📝` when Scratch Pad has content to sync. Opt-in "focus mode" (aka ADHD mode) keeps core counts visible even at zero for users who benefit from persistent visibility. Fully local — no network, no MCP. | `/init` offers to wire it during setup. Or add manually — see [`statusline/README.md`](statusline/README.md). |
-| **Shortcuts.app recipes** | One-tap Morning Standup (reads `/start` aloud), Quick Note (opens Scratch Pad + previews sync), After Meeting (triggers `/meeting-reminder`). Menu-bar, keyboard-shortcut, or calendar-event triggered. | Follow [`shortcuts/README.md`](shortcuts/README.md). No `.shortcut` import needed — build each in 2 minutes. |
+| **Shortcuts.app recipes** | One-tap Morning Standup (reads `/start` aloud) and Quick Note (opens Scratch Pad + previews sync). Menu-bar or keyboard-shortcut triggered. | Follow [`shortcuts/README.md`](shortcuts/README.md). No `.shortcut` import needed — build each in 2 minutes. |
 | **Spotlight** | Your notes folder is already indexed, so `⌘ Space` + typing a task name surfaces the right `.md` file instantly. | Works out of the box. For faster results, keep your vault out of excluded folders in **System Settings → Siri & Spotlight → Spotlight Privacy**. |
 | **Quick Look** | Select any `.md` file in Finder and press **Space** to preview rendered Markdown without opening an editor. | Works out of the box on macOS Sonoma+. For richer rendering (callouts, code blocks), install [QLMarkdown](https://github.com/sbarex/QLMarkdown). |
 
@@ -402,7 +402,7 @@ It's idempotent — rerunning against an existing vault offers reuse instead of 
 /doctor
 ```
 
-`/doctor` reports: folder structure ✓, profile fields ✓, which optional MCPs are detected, and exact fix steps for anything missing. Absent MCPs (Atlassian, Unblocked, Google Calendar) are fine — they're optional upgrades. Run `/doctor` any time something feels off.
+`/doctor` reports: folder structure ✓, profile fields ✓, which optional MCPs are detected, and exact fix steps for anything missing. Absent MCPs (Atlassian, Unblocked) are fine — they're optional upgrades. Run `/doctor` any time something feels off.
 
 ### 4. Start your day
 

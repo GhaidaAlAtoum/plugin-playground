@@ -25,7 +25,6 @@ Copy this block into `~/.claude/CLAUDE.md` and fill in your values:
 | `macos_notifications` | No | `false` | Set to `true` to enable native macOS notifications when running `/reminders`. Fires one notification per overdue/due-today task; groups due-soon and stale items. |
 | `obsidian` | No | `false` | Set to `true` to enable Obsidian-optimised output: callouts, `[[wikilinks]]`, and richer frontmatter (`created`, `type`) across all writing skills. Run `/obsidian-setup` once after enabling. |
 | `obsidian_tasks` | No | `false` | Set to `true` to add Tasks-plugin emoji syntax (`📅 ⏫ 🔼`) inside task files. Requires the **Tasks** community plugin in Obsidian. Only meaningful when `obsidian: true`. |
-| `gcal` | No | `false` | Set to `true` to enable Google Calendar enrichment in `/start` (agenda block) and the `notes-integrations` skills `/calendar` and `/meeting-reminder`. Requires a Google Calendar MCP configured in your Claude Code session. |
 | `auto_start_suggestion` | No | `true` | Controls the `SessionStart` hook nudge. When a Claude Code session opens inside a daily-notes vault, the hook injects a one-line reminder to run `/start` (and a summary of open tasks + Scratch Pad state). Set to `false` to silence the nudge — the hook exits silently and no context is injected. The companion `Stop` hook (one nudge per session to run `/wrap-up` after 30+ min of active work) is always on; end a session fresh to reset its per-session flag. |
 | `statusline_mode` | No | `quiet` *(when wired)* | Controls the daily-notes Claude Code status line. Values: `quiet` (at-a-glance reassurance — only surfaces overdue / dirty-scratch when present), `focus` (opt-in "ADHD mode" — always shows overdue + due-today counts, even at zero, for persistent visibility), `off` (script runs but prints nothing). Only meaningful after the statusline is wired into `~/.claude/settings.json` — run `/init` to opt in, or see `statusline/README.md` for manual install. |
 
@@ -168,7 +167,7 @@ Without `track_contacts: true`, all meetings route to `Meetings/` and no per-per
 - track_contacts: false
 ```
 
-**Obsidian vault user with Google Calendar**
+**Obsidian vault user**
 ```markdown
 ## Daily Notes Plugin Profile
 - role: Software Engineer
@@ -177,5 +176,4 @@ Without `track_contacts: true`, all meetings route to `Meetings/` and no per-per
 - recurring_meetings_label: 1:1
 - obsidian: true
 - obsidian_tasks: true
-- gcal: true
 ```

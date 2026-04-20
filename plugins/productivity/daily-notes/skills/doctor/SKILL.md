@@ -38,17 +38,14 @@ Check `.claude/memory.md`:
 ### 4. MCP availability (informational — never a hard error)
 
 Detect which MCPs are registered in the current Claude Code session. Use whichever method works:
-- Check the session's tool list for names matching `*atlassian*`, `*jira*`, `*unblocked*`, `*calendar*`, `*gcal*`, `list_events`.
+- Check the session's tool list for names matching `*atlassian*`, `*jira*`, `*unblocked*`.
 - If the session exposes an MCP list (e.g. via a meta tool or env var), use it.
 
 Report one line per integration with status `✓ available` or `✗ not configured`:
 ```
 Atlassian MCP     ✓ available          → /jira-pull, /jira-push, /enrich-tickets, /start Jira block
 Unblocked MCP     ✗ not configured     → /enrich-meeting (unavailable)
-Google Calendar   ✓ available          → /calendar, /meeting-reminder, /start GCal block
 ```
-
-If `gcal: true` is set in profile but Google Calendar MCP is not detected: flag this mismatch explicitly — "Profile says `gcal: true` but no Google Calendar MCP is registered in this session. Either remove `gcal: true` from your profile or add the MCP in Claude Code settings."
 
 ### 5. osascript permission (if `macos_notifications: true`)
 Attempt a benign `osascript -e 'return "ok"'` call. If it errors (permission denied, not on macOS), record: "macOS Events permission needed — open System Settings → Privacy & Security → Automation → grant Claude Code access to System Events." If `macos_notifications: false` or unset, skip this check entirely.
@@ -89,7 +86,6 @@ Statusline:   ✓ wired (quiet mode) — dry-run: 📓
 Integrations
   Atlassian       ✓ available
   Unblocked       ✗ not configured
-  Google Calendar ✓ available
 
 Plugins
   daily-notes        ✓
@@ -109,21 +105,14 @@ Critical
   2. Profile block missing `recurring_meetings_label` (track_contacts is true)
      Fix: Add `- recurring_meetings_label: 1:1` under ## Daily Notes Plugin Profile in ~/.claude/CLAUDE.md
 
-Advisory
-  3. Profile has `gcal: true` but no Google Calendar MCP detected in this session.
-     Fix options:
-       a) Remove `gcal: true` from profile (disables GCal skills cleanly), or
-       b) Add a Google Calendar MCP in Claude Code settings (docs: ~/claude/…)
-
 Integrations detected
   Atlassian       ✗ not configured   → Jira skills unavailable
   Unblocked       ✓ available
-  Google Calendar ✗ not configured   → GCal skills unavailable
 ```
 
 ## Rules
 
 - Read-only. Never write, modify, or delete any file during `/doctor`.
 - Do not prompt the user during checks — run them all, report once.
-- Absent MCPs are **never** errors. They become advisory issues only if the profile claims they're configured but the session disagrees (the `gcal: true` mismatch case).
+- Absent MCPs are **never** errors.
 - If `uname -s` is not `Darwin`, skip check 5 entirely and note: "Non-macOS detected — skipping osascript check. The `macos_notifications` feature is macOS-only."

@@ -110,7 +110,7 @@ The statusline runs after every assistant message (Claude Code debounces at 300m
 
 Non-negotiable rules for any future change to the statusline:
 
-1. **Local only.** No network, no MCP calls, no shelling out to API clients. The bar fires on every user prompt; an API call here will rate-limit the user's account and stall the UI. The whole reason gcal meeting signals are out of v1 is that they'd require a 5-minute disk cache and a refresh daemon — revisit only with that infrastructure in place.
+1. **Local only.** No network, no MCP calls, no shelling out to API clients. The bar fires on every user prompt; an API call here will rate-limit the user's account and stall the UI. Any external-API-backed signal would require a disk cache (mtime-invalidatable) and a refresh daemon — revisit only with that infrastructure in place.
 2. **Cache-or-die.** Every signal must be derivable from local files whose mtimes change when the signal should change. Cache in `.claude/statusline-cache.<session_id>.json`. Any signal that can't be invalidated via mtime belongs out of scope.
 3. **Stable icon count within a mode.** Emoji widths vary across terminals (iTerm2, Terminal.app, VS Code, Warp). Adding and removing icons causes visible jitter. Quiet mode's "show only when non-zero" pattern is the quiet contract; focus mode's "always show `🔴N 🟠N`" is the focus contract. Don't blur them.
 4. **Empty stdout = blank bar.** Every error path exits 0 with no output. Never print stack traces, warnings, or "broken" strings to stdout — the bar is user-visible. Errors surface through `/doctor` instead.
@@ -129,7 +129,7 @@ When a skill depends on something that's not available (MCP, macOS permission, m
 Examples:
 - `⚠️  Atlassian MCP not available in this session — /jira-pull needs live Jira access. Run /doctor to see which integrations are detected, or add an Atlassian MCP in your Claude Code settings.`
 - `⚠️  macOS notifications unavailable — osascript call failed. Run /doctor to diagnose …`
-- `⚠️  Google Calendar MCP not available in this session — agenda skipped. Run /doctor …`
+- `⚠️  Unblocked MCP not available in this session — /enrich-meeting needs live context. Run /doctor …`
 
 Rules:
 1. **Never silently degrade.** If a feature is skipped, the user has to be told — even if the base skill still produces useful output.

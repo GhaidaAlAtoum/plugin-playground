@@ -6,7 +6,7 @@ Interactive onboarding. Scaffolds the notes folder tree, creates the starter fil
 
 ## Hard constraint
 
-Do **not** prompt for, install, or configure any MCP server (Atlassian, Unblocked, Google Calendar). These are user-owned Claude Code configs. This skill only mentions them as optional future add-ons with a link to the relevant docs.
+Do **not** prompt for, install, or configure any MCP server (Atlassian, Unblocked). These are user-owned Claude Code configs. This skill only mentions them as optional future add-ons with a link to the relevant docs.
 
 ## Steps
 
@@ -30,7 +30,7 @@ Do **not** prompt for, install, or configure any MCP server (Atlassian, Unblocke
    - **Obsidian vault?** (y/n) — enables callout/wikilink output. Default: **n**.
      - If y: **Obsidian Tasks plugin installed?** (y/n) for emoji task syntax. Default: **n**.
 
-   Do **not** ask about `gcal`, Atlassian, or Unblocked here. These require MCP configs the user owns separately.
+   Do **not** ask about Atlassian or Unblocked here. These require MCP configs the user owns separately.
 
 4. **Scaffold the folder tree**: Create at the chosen location (skip any that already exist — never overwrite):
    ```
@@ -81,8 +81,6 @@ Do **not** prompt for, install, or configure any MCP server (Atlassian, Unblocke
    Optional integrations (configure separately, not required):
    • Atlassian MCP  → unlocks /jira-pull, /jira-push, /enrich-tickets, adaptive /start Jira block
    • Unblocked MCP  → unlocks /enrich-meeting
-   • Google Calendar MCP + `gcal: true` in profile → unlocks /calendar, /meeting-reminder,
-                                                     adaptive /start agenda block
    None are installed by this plugin. See your Claude Code settings to add MCPs.
    Run /doctor any time to see which integrations are currently available.
    ```

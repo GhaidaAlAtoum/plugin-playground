@@ -1,6 +1,6 @@
 # macOS Shortcuts recipes
 
-Three Shortcuts.app recipes that turn `daily-notes` slash commands into one-tap actions from your menu bar, Dock, Touch Bar, Apple Watch, or a keyboard shortcut. All recipes run the `claude` CLI in your notes folder — no network calls, no extra permissions beyond what `claude` already has.
+Two Shortcuts.app recipes that turn `daily-notes` slash commands into one-tap actions from your menu bar, Dock, Touch Bar, Apple Watch, or a keyboard shortcut. All recipes run the `claude` CLI in your notes folder — no network calls, no extra permissions beyond what `claude` already has.
 
 > **Why recipes, not `.shortcut` files?** Shortcuts binaries are unstable across macOS releases and bind to your user's file paths. The build instructions below let you paste the recipe once and adjust paths to your vault. Takes 2 minutes per recipe.
 
@@ -73,38 +73,12 @@ Hit **⌃⌥N** → Scratch Pad opens. Jot your thought. Close the editor. Click
 
 ---
 
-## Recipe 3 — After-meeting capture
-
-Triggers `/meeting-reminder` (from `notes-integrations`) to prompt for any meeting that just ended without notes. Designed to fire right after a calendar block.
-
-### Build
-
-1. New Shortcut → name it **After Meeting**.
-2. Add action: **Run Shell Script**.
-   - Shell: `/bin/zsh`
-   - Script:
-     ```bash
-     cd <NOTES_FOLDER> && claude -p "/meeting-reminder"
-     ```
-3. Add action: **Show Result** (input: Shell Script Result).
-4. Pin to menu bar + optional keyboard shortcut **⌃⌥.** (control-option-period).
-
-### Use — two modes
-
-**Manual**: hit the keyboard shortcut when you remember to capture.
-
-**Automated** (advanced): pair with a **Calendar Event** automation in Shortcuts.app → **Automation** tab → **+ → When an event ends → Run Morning Standup / After Meeting**. Limited to specific calendars — point it at your work calendar only.
-
-> **Requires a Google Calendar MCP** to find the just-ended meeting. Without it, `/meeting-reminder` prints the `⚠️  Google Calendar unavailable` message — run `/doctor` to confirm the MCP is registered.
-
----
-
 ## Troubleshooting
 
 | Symptom | Fix |
 |---|---|
 | "command not found: claude" | Replace `claude` with the absolute path. Find it with `which claude`. |
-| Shortcut hangs | `claude -p` is non-interactive; if a skill needs confirmation, run it from the terminal instead. Morning Standup and After Meeting are safe — they're read-only. Quick Note's preview step is also read-only. |
+| Shortcut hangs | `claude -p` is non-interactive; if a skill needs confirmation, run it from the terminal instead. Morning Standup is safe — it's read-only. Quick Note's preview step is also read-only. |
 | "Operation not permitted" | First run triggers **System Settings → Privacy & Security → Automation** — grant Shortcuts permission to control Terminal. |
 | Voice in Morning Standup cuts off | Increase the **Wait** between actions, or split long output with `\| head -40` in the shell script. |
 
