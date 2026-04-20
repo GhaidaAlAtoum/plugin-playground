@@ -1,0 +1,16 @@
+{
+  "name": "plugin-playground",
+  "owner": {
+    "name": "ghaidaatoum"
+  },
+  "plugins": [
+    {
+      "name": "daily-notes",
+      "source": "./plugins/productivity/daily-notes"
+    },
+    {
+      "name": "notes-integrations",
+      "source": "./plugins/productivity/notes-integrations"
+    }
+  ]
+}

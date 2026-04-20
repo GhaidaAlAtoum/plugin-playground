@@ -1,0 +1,16 @@
+{
+  "name": "notes-integrations",
+  "description": "MCP-powered enrichment layer for daily-notes: pull Jira tickets into tasks, surface Unblocked context in meeting notes, enrich Scratch Pad ticket references, and generate time-window recap reports.",
+  "version": "1.2.0",
+  "author": {
+    "name": "Ghaida Atoum",
+    "email": "ghaida.alatoum2@gmail.com"
+  },
+  "homepage": "https://github.com/ghaidaatoum/plugin-playground/tree/main/plugins/productivity/notes-integrations",
+  "repository": "https://github.com/ghaidaatoum/plugin-playground",
+  "license": "MIT",
+  "keywords": ["productivity", "jira", "unblocked", "google-calendar", "mcp", "notes-integrations"],
+  "dependencies": [
+    { "name": "daily-notes" }
+  ]
+}
