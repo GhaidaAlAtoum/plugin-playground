@@ -87,7 +87,28 @@ Do **not** prompt for, install, or configure any MCP server (Atlassian, Unblocke
    Run /doctor any time to see which integrations are currently available.
    ```
 
-8. **Final next step**: Tell the user exactly one command to run next:
+8. **Offer to wire the daily-notes statusline** (new — opt-in): Ask: `Enable the daily-notes statusline? Shows vault signals (overdue tasks, dirty scratch pad) in your Claude Code status bar. (y/n, default y)`
+   - If **n**: skip to step 9.
+   - If **y**: ask: `Which mode? [quiet / focus (ADHD-friendly, always-on counts)] default quiet`. Record the answer as `<mode>`.
+   - **Compute the absolute path** to the statusline script: `<plugin-root>/statusline/daily-notes-status.sh` where `<plugin-root>` is the daily-notes plugin's install directory. Verify the file exists and is executable (`test -x <path>`). If not executable, offer to run `chmod +x <path>`.
+   - **Read `~/.claude/settings.json`**. Decide:
+     - If the file does not exist → plan a new file with a `statusLine` block.
+     - If the file exists and has no top-level `statusLine` → plan to add one.
+     - If a `statusLine` already exists → show the user the existing block and the new one side-by-side, then ask: `overwrite / keep existing / skip`.
+   - **Show the full JSON patch** before writing, so the user sees exactly what lands in their settings file:
+     ```json
+     "statusLine": {
+       "type": "command",
+       "command": "<absolute-path>/plugins/productivity/daily-notes/statusline/daily-notes-status.sh",
+       "padding": 1
+     }
+     ```
+   - Confirm, then write. Preserve existing keys in `settings.json` — never replace the whole file.
+   - **Add `statusline_mode: <mode>` to the Daily Notes Plugin Profile** block in `~/.claude/CLAUDE.md` (uses the same profile-writing path as step 6).
+   - Print a one-liner: `✓ statusline wired (<mode> mode). Restart Claude Code or start a fresh session to see the bar update.`
+   - If the user chose **n**, print the manual-install instructions with the absolute path, so they can wire it themselves later: `To enable later, add this to ~/.claude/settings.json: <block>. See statusline/README.md for the full guide.`
+
+9. **Final next step**: Tell the user exactly one command to run next:
    ```
    ✅ Setup complete. Open Claude Code in this folder and run:
 

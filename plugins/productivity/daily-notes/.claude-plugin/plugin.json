@@ -1,7 +1,7 @@
 {
   "name": "daily-notes",
   "description": "Daily note tracking system with morning standup, note processing, meeting prep, task management, and end-of-day closeout skills.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "author": {
     "name": "Ghaida Atoum",
     "email": "ghaida.alatoum2@gmail.com"
