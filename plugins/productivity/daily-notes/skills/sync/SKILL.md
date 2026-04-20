@@ -4,6 +4,25 @@ description: Process loose notes from Scratch Pad — route to tasks, talking po
 
 Process my loose notes and file everything into the right places.
 
+## Preview mode (`/sync --preview` or `/sync --dry-run`)
+
+If the user invoked this skill with `--preview` or `--dry-run` in the arguments, run a **read-only plan** instead of executing:
+
+1. Run steps 1–2 below to parse `Scratch Pad.md` and review `Meetings/` — read-only, never write.
+2. Run step 3 classification (talking points vs. tasks) in memory only — do not append to `Talking Points.md`.
+3. For each would-be write, emit a single numbered line in this form:
+   - `1. CREATE Tasks/<name>.md — <short summary>`
+   - `2. UPDATE Tasks/<key>.md — change status open → in-progress`
+   - `3. APPEND Talking Points.md → ## Sarah — "Ask about the Q2 plan"`
+   - `4. CREATE Meetings/2026-04-20 Meeting.md — summary of today's sync`
+   - `5. CREATE Daily Notes/2026-04-20.md — 4 items processed`
+   - `6. CLEAR Scratch Pad.md — replace with blank line`
+4. Group the plan under headings: **Would create**, **Would update**, **Would append**, **Would clear**. If a category is empty, omit the heading.
+5. Count total operations and print a one-line summary, e.g. `Plan: 3 creates, 1 append, 1 clear. No files written. Run /sync to apply.`
+6. **Do not write any files. Do not clear the Scratch Pad. Do not ask for confirmation** — preview mode always exits after printing the plan.
+
+Normal `/sync` (no `--preview` flag) follows the steps below and writes as usual.
+
 ## Steps
 
 1. **Scratch Pad**: Read `Scratch Pad.md` in the project root. Parse every note, idea, to-do, and reference. Categorize each item as: action item, meeting note, reference/info, or idea. If the scratch pad is empty, say so and move on.

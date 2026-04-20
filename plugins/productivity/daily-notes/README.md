@@ -117,6 +117,26 @@ flowchart LR
 ```
 > Processes everything in `Scratch Pad.md`: routes action items to tasks, talking points to `Talking Points.md`, meeting notes to `Meetings/` (or a contact's folder if `track_contacts: true`), and writes today's daily note. Confirms before clearing the Scratch Pad.
 
+**Preview what `/sync` will do — no writes**
+```
+/sync --preview
+```
+> Read-only plan mode. Parses the Scratch Pad and any new meeting notes, then prints a numbered plan of the creates/updates/appends it would perform — **no files are written, Scratch Pad is left intact**. Edit the Scratch Pad and re-preview until the plan looks right, then run `/sync` (no flag) to apply. `/sync --dry-run` is an alias.
+```
+Plan: 3 creates, 1 append, 1 clear. No files written. Run /sync to apply.
+
+Would create
+  1. CREATE Tasks/fix-login-bug.md — from "fix login bug" note
+  2. CREATE Meetings/2026-04-20 Standup.md — summary of 4-bullet meeting
+  3. CREATE Daily Notes/2026-04-20.md — 4 items processed
+
+Would append
+  4. APPEND Talking Points.md → ## Sarah — "Ask about Q2 plan"
+
+Would clear
+  5. CLEAR Scratch Pad.md — replace with blank line
+```
+
 **Prep for a meeting**
 ```
 /prep Sarah
@@ -173,6 +193,17 @@ End of day
   /wrap-up         — close out tasks, finalize daily note
   /task archive    — clean up done tasks (weekly or as needed)
 ```
+
+---
+
+## Smart defaults — session hooks
+
+Two hooks ship with the plugin and run automatically in every Claude Code session. Both are silent unless the cwd is a daily-notes vault (has `Scratch Pad.md` + `Tasks/`) — they never affect unrelated projects.
+
+- **Start-of-session nudge** — when you open Claude Code in a vault, a short reminder is injected suggesting `/start` (or `/sync` if the Scratch Pad already has content), along with an open-task count. Silence with `auto_start_suggestion: false` in your profile.
+- **End-of-session nudge** — once per session, if you've been working for 30+ minutes and have edits in `Scratch Pad.md` or `Tasks/`, the model is prompted to remind you to run `/wrap-up` before the session ends. Fires at most one time per session.
+
+Neither hook makes network calls, modifies your notes, or runs any slash command on your behalf. The only files they write are `.claude/session-start.epoch` (session timestamp) and `.claude/wrap-up-hinted` (one-shot flag) inside your vault.
 
 ---
 

@@ -65,6 +65,18 @@ Skills read these fields at runtime via the "Daily Notes Plugin Profile" block i
 | `recurring_meetings_label` | string | `1:1` | `/sync` |
 | `macos_notifications` | bool | false | `/reminders` |
 
+### Session hooks
+
+Declared in `hooks/hooks.json` and implemented as POSIX shell scripts in `hooks/`. Both hooks must:
+
+- Exit `0` silently when the cwd isn't a daily-notes vault (signature: `Scratch Pad.md` + `Tasks/` exist). Never fail a session for an unrelated project.
+- Emit only JSON on stdout in the verified Claude Code hook shapes — `{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"..."}}` for SessionStart, `{"decision":"block","reason":"..."}` for Stop.
+- Never call external services or slash commands, never modify notes. Writes are restricted to `.claude/session-start.epoch` (SessionStart) and `.claude/wrap-up-hinted` (Stop one-shot flag).
+
+`SessionStart` respects the `auto_start_suggestion` profile field (default `true`; set `false` to silence). `Stop` is always-on but self-limits to one nudge per session via the flag, which SessionStart clears on each startup/resume/clear.
+
+When adding new hooks: follow the same gate-first pattern (vault signature → profile opt-out → work), keep runtime under the `timeout` budget declared in `hooks.json`, and document the new hook in `CLAUDE.md` under "Session hooks".
+
 ### Error messages — standard pattern
 
 When a skill depends on something that's not available (MCP, macOS permission, missing profile field), it must surface the failure explicitly — never silent degradation. Use this exact pattern so users learn the shape and know where to look:

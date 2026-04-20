@@ -26,6 +26,7 @@ Copy this block into `~/.claude/CLAUDE.md` and fill in your values:
 | `obsidian` | No | `false` | Set to `true` to enable Obsidian-optimised output: callouts, `[[wikilinks]]`, and richer frontmatter (`created`, `type`) across all writing skills. Run `/obsidian-setup` once after enabling. |
 | `obsidian_tasks` | No | `false` | Set to `true` to add Tasks-plugin emoji syntax (`📅 ⏫ 🔼`) inside task files. Requires the **Tasks** community plugin in Obsidian. Only meaningful when `obsidian: true`. |
 | `gcal` | No | `false` | Set to `true` to enable Google Calendar enrichment in `/start` (agenda block) and the `notes-integrations` skills `/calendar` and `/meeting-reminder`. Requires a Google Calendar MCP configured in your Claude Code session. |
+| `auto_start_suggestion` | No | `true` | Controls the `SessionStart` hook nudge. When a Claude Code session opens inside a daily-notes vault, the hook injects a one-line reminder to run `/start` (and a summary of open tasks + Scratch Pad state). Set to `false` to silence the nudge — the hook exits silently and no context is injected. The companion `Stop` hook (one nudge per session to run `/wrap-up` after 30+ min of active work) is always on; end a session fresh to reset its per-session flag. |
 
 ## What `obsidian: true` unlocks
 
@@ -41,6 +42,15 @@ Without `obsidian: true`, all output uses plain markdown — no callouts, no wik
 - **`/reminders`** — fires native macOS notifications via `osascript` for overdue and due-today tasks (one each), plus grouped notifications for due-soon and stale in-progress items.
 
 Without `macos_notifications: true`, `/reminders` still shows the full summary in chat — notifications are simply not sent.
+
+## Session hooks (always on)
+
+The plugin ships two hooks that fire automatically in every Claude Code session — they never write to any file you own, never call external services, and exit silently when the cwd doesn't look like a daily-notes vault (no `Scratch Pad.md` + `Tasks/`).
+
+- **`SessionStart`** — on startup / resume / clear, if the cwd is a vault, injects a one-line reminder listing open-task count and Scratch Pad state, and suggests `/start` (or `/sync` if the Scratch Pad already has content). Seeds `.claude/session-start.epoch` so the Stop hook can measure session length. Gated by `auto_start_suggestion` (default `true`).
+- **`Stop`** — once per session, if elapsed ≥ 30 min and `Scratch Pad.md` or any `Tasks/*.md` has been modified since the session started, nudges the model to recommend `/wrap-up`. The one-shot `.claude/wrap-up-hinted` flag is cleared by the next `SessionStart`, so every fresh session gets at most one Stop nudge.
+
+Both hooks write only to `.claude/session-start.epoch` and `.claude/wrap-up-hinted` in the current vault. No network, no MCP calls, no external I/O.
 
 ## What `track_contacts: true` unlocks
 
