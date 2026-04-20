@@ -156,7 +156,7 @@ Would clear
 ```
 /reminders
 ```
-> Scans all tasks and surfaces overdue, due today, due soon, scheduled today, and stale in-progress items in a prioritized list. Offers to snooze or close items inline. If `macos_notifications: true` is set in your profile, also fires native macOS notifications for overdue and due-today tasks.
+> Scans all tasks and surfaces overdue, due today, due soon, scheduled today, and stale in-progress items in a prioritized list. Offers to snooze or close items inline. If `macos_notifications: true` is set in your profile, also fires native macOS notifications for overdue and due-today tasks — plus up to 3 **action-button dialogs** for overdue items (Mark done / Snooze 1h / Dismiss) so you can resolve them without typing.
 
 **End of day**
 ```
@@ -278,6 +278,25 @@ Notifications are off by default. When enabled, overdue and due-today tasks each
 - `/sync` routes meetings matching `recurring_meetings_label` to `{contacts_folder}/<Name>/Meeting History/` instead of `Meetings/`
 - `/sync` writes notable feedback/events to `{contacts_folder}/<Name>/log.md`
 - `/prep <name>` surfaces that person's meeting history and log entries
+
+---
+
+## macOS integrations
+
+The plugin assumes macOS and leans into it. None of the features below are required — they're sugar on top of the plain-Markdown core.
+
+| Integration | What it adds | How to enable |
+|---|---|---|
+| **Native notifications** | `/reminders` fires one notification per overdue / due-today task, groups due-soon and stale items, and (for overdues) pops up **action-button dialogs** (Mark done / Snooze 1h / Dismiss) that write straight back to the task file. | `macos_notifications: true` in your profile. |
+| **Shortcuts.app recipes** | One-tap Morning Standup (reads `/start` aloud), Quick Note (opens Scratch Pad + previews sync), After Meeting (triggers `/meeting-reminder`). Menu-bar, keyboard-shortcut, or calendar-event triggered. | Follow [`shortcuts/README.md`](shortcuts/README.md). No `.shortcut` import needed — build each in 2 minutes. |
+| **Spotlight** | Your notes folder is already indexed, so `⌘ Space` + typing a task name surfaces the right `.md` file instantly. | Works out of the box. For faster results, keep your vault out of excluded folders in **System Settings → Siri & Spotlight → Spotlight Privacy**. |
+| **Quick Look** | Select any `.md` file in Finder and press **Space** to preview rendered Markdown without opening an editor. | Works out of the box on macOS Sonoma+. For richer rendering (callouts, code blocks), install [QLMarkdown](https://github.com/sbarex/QLMarkdown). |
+
+> **Menu-bar task list / Dock badge counts**: out of scope for this plugin — those need a standalone macOS app. If you build one on top of the task file format, open an issue and we'll link it.
+
+### Dialog permission
+
+The first overdue dialog from `/reminders` triggers a macOS permission prompt — grant **Terminal → Control Other Apps** under **System Settings → Privacy & Security → Automation**. If you skip or deny, `/reminders` falls back to the chat summary only; no data is lost.
 
 ---
 

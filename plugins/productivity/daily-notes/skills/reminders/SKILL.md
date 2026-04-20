@@ -82,6 +82,18 @@ Check for urgent and time-sensitive tasks and surface them as a reminder summary
    - **Done**: set `status: done` and add `completedDate: YYYY-MM-DD`. Confirm before writing.
    - If no updates are requested, nothing is written.
 
+7. **macOS action-button dialogs** *(opt-in — only if `macos_notifications: true` and there is at least one **Overdue** task)*: For each Overdue task, open a three-button `osascript display dialog` so the user can act without typing:
+   ```bash
+   osascript -e 'display dialog "Overdue since YYYY-MM-DD\n\n<Task name>" with title "daily-notes — overdue" buttons {"Dismiss", "Snooze 1h", "Mark done"} default button "Mark done" cancel button "Dismiss" with icon caution'
+   ```
+   - The command prints `button returned:<label>` to stdout. Parse that to decide the action.
+   - **Mark done**: update the task file — set `status: done` and add `completedDate: YYYY-MM-DD` (today). Print one confirmation line in chat: `✓ Marked done: <Task name>`.
+   - **Snooze 1h**: update the `due` field — if `due` already includes a time (`YYYY-MM-DDTHH:MM`), add one hour; otherwise set it to today + 1h (`YYYY-MM-DDT<now+1h>`). Print `⏰ Snoozed 1h: <Task name> → <new due>`.
+   - **Dismiss** (or Cancel / close): no write. Print nothing extra.
+   - Cap this step at **three dialogs per run** to avoid flooding the user — if there are more than three overdue tasks, show the three highest-priority (`high` > `normal` > `low`; ties break on oldest `due`) and print: `Showed dialogs for 3 of N overdue tasks — re-run /reminders to cycle through the rest.`
+   - If any `osascript` dialog call fails (permission not granted, non-interactive session), print the standard fallback once and skip the remaining dialogs for this run: `⚠️  macOS dialogs unavailable — osascript call failed. Run /doctor to diagnose (likely: Apple Events permission not granted in System Settings → Privacy & Security → Automation).` The chat summary from step 4 is still shown — no data lost.
+   - This step is purely additive: if `macos_notifications: false` or there are no overdue tasks, skip it entirely.
+
 ## Rules
 
 - Read-only until the user requests a quick action in step 6.
