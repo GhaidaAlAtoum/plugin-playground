@@ -181,12 +181,12 @@ The Preview at the top of the TUI should now look something like this (colors in
 ```
 ~/plugin-playground  ⎇ main (+2,-1)
 Opus 4.7  ·  high  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
-5h ▓▓▓▓▓▓▓▓░░ 29m to reset · $16.08  ·  💬 Session $0.42
+5h ▓▓▓▓▓▓▓▓░░ 29m → 6pm · $16.08  ·  💬 Session $0.42
 ```
 
 - **Ctx bar** should be green if < 70%, yellow 70–89%, red ≥ 90%.
 - **Thinking Effort** shows `low`/`medium`/`high`/`max` — whichever matches your current selection in Claude Code's model picker.
-- **5h bar** fills as the clock-hour-aligned 5h block elapses; same color thresholds (red = nearly out of time). The "X to reset" time approximates what `/usage` shows for the subscription reset.
+- **5h bar** fills as the clock-hour-aligned 5h block elapses; same color thresholds (red = nearly out of time). The "Xh Ym → 6pm" format shows both remaining time and the local clock hour the block resets at — matches the reset hour `/usage` reports for the subscription.
 - **💬 Session** is cost of the current Claude Code conversation (resets on `/clear` or a new session).
 - **Numbers visible at all** = your `commandPath` and `preserveColors` are configured correctly.
 - If a Custom Command shows dim dashes (`░░░░ ??%`) — that's the cold-cache fallback. Wait ~2 seconds and it populates.
@@ -213,7 +213,7 @@ If it doesn't, sanity-check in order:
    ```bash
    echo '{}' | <PYTHON> <PLUGIN_DIR>/statusline/render_segments.py --segment block
    ```
-   Should print the `5h … X to reset · $xx.xx` line (or a dim fallback on a truly cold cache).
+   Should print the `5h … Xh Ym → 6pm · $xx.xx` line (or a dim fallback on a truly cold cache).
 
 ---
 

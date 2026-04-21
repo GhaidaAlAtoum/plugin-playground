@@ -83,30 +83,36 @@ def _fmt_limit(n: int) -> str:
     return _fmt_tokens(n)
 
 
-def _fmt_remaining(seconds: float) -> str:
-    s = max(0, int(seconds))
-    if s <= 0:
-        return "expired"
+def _fmt_duration(seconds: float) -> str:
+    """Compact remaining time: '1h28m', '28m', or '<1m'."""
+    s = int(seconds)
     h, rem = divmod(s, 3600)
     m = rem // 60
     if h > 0:
-        return f"{h}h{m:02d}m left"
+        return f"{h}h{m:02d}m"
     if m >= 1:
-        return f"{m}m left"
-    return "<1m left"
+        return f"{m}m"
+    return "<1m"
 
 
-def _fmt_time_to_reset(seconds: float) -> str:
-    s = max(0, int(seconds))
-    if s <= 0:
+def _fmt_reset_clock(end: datetime) -> str:
+    """Block-end timestamp in the user's local timezone, /usage-style
+    ('6pm', '12am', '6:30pm' if ever non-hour-aligned)."""
+    local = end.astimezone()
+    ampm = "am" if local.hour < 12 else "pm"
+    h12 = local.hour % 12 or 12
+    if local.minute == 0:
+        return f"{h12}{ampm}"
+    return f"{h12}:{local.minute:02d}{ampm}"
+
+
+def _fmt_time_to_reset(seconds: float, end: datetime) -> str:
+    """'1h28m → 6pm' — remaining duration + local clock time of reset.
+    Falls back to 'resetting now' on a non-positive remaining (defensive;
+    the now-roll in block_window should keep remaining positive)."""
+    if int(seconds) <= 0:
         return "resetting now"
-    h, rem = divmod(s, 3600)
-    m = rem // 60
-    if h > 0:
-        return f"{h}h{m:02d}m to reset"
-    if m >= 1:
-        return f"{m}m to reset"
-    return "<1m to reset"
+    return f"{_fmt_duration(seconds)} → {_fmt_reset_clock(end)}"
 
 
 def _eq_suffix(auth_mode: str) -> str:
@@ -285,7 +291,7 @@ def segment_block(cache: dict) -> str:
     bar = render_bar(pct)
     cost = float(block.get("cost", 0.0))
     suffix = _eq_suffix(block.get("auth_mode", ""))
-    return f"5h {bar} {_fmt_time_to_reset(remaining)} · ${cost:,.2f}{suffix}"
+    return f"5h {bar} {_fmt_time_to_reset(remaining, end)} · ${cost:,.2f}{suffix}"
 
 
 def segment_session(payload: dict) -> str:

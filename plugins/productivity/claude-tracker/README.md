@@ -130,12 +130,12 @@ If you're comparing to an older tracker that ignored cache tokens, expect this n
 ```
 ~/plugin-playground  ⎇ main (+2,-1)
 Opus 4.7  ·  high  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
-5h ▓▓▓▓▓▓▓▓░░ 29m to reset · $16.08  ·  💬 Session $0.42
+5h ▓▓▓▓▓▓▓▓░░ 29m → 6pm · $16.08  ·  💬 Session $0.42
 ```
 
 - **Context bar** fills per-model (Opus/Sonnet: 1M, Haiku: 200K, or `CLAUDE_CTX_LIMIT` env override). Green < 70%, yellow 70-89%, red ≥ 90%.
 - **Thinking effort** (`low` / `medium` / `high` / `max`) is rendered by ccstatusline's built-in `ThinkingEffort` widget — no Custom Command needed.
-- **5h bar** tracks the current Anthropic 5h billing block, **clock-hour aligned** so the "X to reset" time approximates the subscription reset shown in `/usage`. Block cost shown next to the countdown.
+- **5h bar** tracks the current Anthropic 5h billing block, **clock-hour aligned** so the "X → Ypm" reset time approximates the subscription reset shown in `/usage`. Remaining time, local reset hour, and block cost all on one line.
 - **💬 Session** is cost for your current Claude Code conversation (this `transcript_path`). Resets on `/clear` or a new session.
 - Subscription users see `$X.XX eq` suffix on both cost values — a reminder these are API-equivalent, not your actual bill.
 
@@ -149,7 +149,7 @@ These get confused easily. All three are 5 hours long; only one of them is what 
 | **Anthropic 5h pricing block** | API-pricing bucket. Starts on your first message of the block. The statusline aligns the *display* to the clock hour to approximate the subscription reset. | `5h` bar on the statusline. |
 | **Subscription rate-limit window** | Server-side cap on Max/Pro/Team. Resets at a clock hour. | `/usage` only — not readable from the statusline. |
 
-The statusline's "X to reset" is an **approximation** of the subscription reset via clock-hour alignment — not a live fetch. For the authoritative reset time (and per-plan limits — Pro / Max / Team differ), check Anthropic's docs or `/usage`.
+The statusline's "X → Ypm" is an **approximation** of the subscription reset via clock-hour alignment — not a live fetch. For the authoritative reset time (and per-plan limits — Pro / Max / Team differ), check Anthropic's docs or `/usage`.
 
 ### v1 (legacy)
 
