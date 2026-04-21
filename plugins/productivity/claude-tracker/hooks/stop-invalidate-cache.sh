@@ -9,9 +9,12 @@ set -u
 # Discard stdin — the Stop hook passes session JSON but we don't need it.
 cat > /dev/null 2>&1 || true
 
-CACHE_FILE="${TMPDIR:-/tmp}/claude-tracker-status.line"
+CACHE_DIR="${TMPDIR:-/tmp}"
 
-# Best-effort: delete, ignore errors (cache may not exist yet, or may be locked).
-rm -f "$CACHE_FILE" 2>/dev/null || true
+# Best-effort: delete both v1 (legacy) and v2 caches. Ignore errors.
+rm -f \
+  "$CACHE_DIR/claude-tracker-status.line" \
+  "$CACHE_DIR/claude-tracker-status.v2.json" \
+  2>/dev/null || true
 
 exit 0

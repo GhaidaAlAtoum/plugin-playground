@@ -292,6 +292,79 @@ def window_start(now: datetime | None = None, hours: int = WINDOW_HOURS) -> date
     return now - timedelta(hours=hours)
 
 
+def block_window(
+    entries: list[Entry],
+    now: datetime | None = None,
+    hours: int = WINDOW_HOURS,
+) -> tuple[datetime, datetime] | None:
+    """Anthropic-style 5h billing block detection.
+
+    A new block starts on any entry >= `hours` after the previous entry.
+    Returns (start, end) of the most recent block, or None if no entries.
+    Caller can compare `now` against `end` to decide if the block is live
+    or already closed.
+    """
+    ts_entries = [e for e in entries if e.timestamp is not None]
+    if not ts_entries:
+        return None
+    ts_entries.sort(key=lambda e: e.timestamp)
+    gap = timedelta(hours=hours)
+    block_start = ts_entries[0].timestamp
+    prev = ts_entries[0].timestamp
+    for e in ts_entries[1:]:
+        if e.timestamp - prev >= gap:
+            block_start = e.timestamp
+        prev = e.timestamp
+    return block_start, block_start + gap
+
+
+def last_assistant_context_tokens(transcript_path: str) -> tuple[int, str] | None:
+    """Tail-read the transcript .jsonl and return (tokens_used, model) from
+    the most recent assistant entry with a usage block.
+
+    tokens_used = input + cache_creation + cache_read (the input-side tokens
+    the model sees on the next turn — matches Claude Code's own "context
+    used" indicator). Returns None on missing/unreadable file.
+    """
+    if not transcript_path:
+        return None
+    try:
+        size = os.path.getsize(transcript_path)
+    except OSError:
+        return None
+    tail_bytes = 262_144
+    try:
+        with open(transcript_path, "rb") as f:
+            if size > tail_bytes:
+                f.seek(size - tail_bytes)
+                f.readline()  # discard partial line
+            chunk = f.read().decode("utf-8", errors="ignore")
+    except OSError:
+        return None
+    for line in reversed(chunk.splitlines()):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if obj.get("type") != "assistant":
+            continue
+        msg = obj.get("message", obj)
+        usage = msg.get("usage") if isinstance(msg, dict) else None
+        if not isinstance(usage, dict):
+            continue
+        tokens = (
+            int(usage.get("input_tokens", 0) or 0)
+            + int(usage.get("cache_creation_input_tokens", 0) or 0)
+            + int(usage.get("cache_read_input_tokens", 0) or 0)
+        )
+        model = msg.get("model") or obj.get("model") or ""
+        return tokens, model
+    return None
+
+
 # --- CLI ------------------------------------------------------------------
 
 def _fmt_money(v: float, suffix: str = "") -> str:

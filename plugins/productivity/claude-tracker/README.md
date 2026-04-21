@@ -7,7 +7,8 @@ Three surfaces, one shared core:
 | Component | What it does | Where it lives |
 |---|---|---|
 | **`/cost` slash command** | On-demand breakdown — by model, by project, window / today / month | `skills/cost/SKILL.md` |
-| **Statusline** | Compact ambient cost + 5-hour window in the Claude Code status bar | `statusline/claude-cost.sh` |
+| **Statusline v2** *(recommended)* | 3-line ambient display with colored context + 5h-block bars via `ccstatusline` | `statusline/render_segments.py` |
+| **Statusline v1** *(legacy)* | Compact one-line cost + 5h window | `statusline/claude-cost.sh` |
 | **Stop hook** *(auto)* | Refreshes the statusline after each assistant response | `hooks/stop-invalidate-cache.sh` |
 | **macOS menu bar** *(optional)* | Rolling cost in your menu bar, always on | `macos/menu_bar.py` |
 
@@ -26,9 +27,30 @@ All four share `tracker_core.py` — pure stdlib Python, reads `~/.claude/projec
 
 The `/cost` skill and Stop hook are active immediately. The statusline requires one more step (below). The macOS menu bar app is optional.
 
-### Wire the statusline (optional, recommended)
+### Wire the statusline v2 (recommended)
 
-Add to `~/.claude/settings.json`:
+The v2 statusline uses [`ccstatusline`](https://www.npmjs.com/package/ccstatusline) as the layout engine and plugs in our threshold-colored context + 5h-block bars via its Custom Command widget.
+
+**From inside Claude Code:** just ask — e.g. "set up the statusline" — and the `/statusline-setup` skill will run the guided setup, read your current `~/.claude/settings.json`, and offer to update it for you.
+
+**Or run the script directly:**
+
+```bash
+<path-to-plugin>/statusline/install-ccstatusline.sh
+```
+
+Then follow **[`statusline/SETUP-GUIDE.md`](statusline/SETUP-GUIDE.md)** for the step-by-step TUI walkthrough (what to click, what to paste, expected preview at each step).
+
+It verifies prerequisites (`python3`, `npx`), renders a live sample, and prints the exact TUI steps and the three `--segment` commands to paste into `ccstatusline`.
+
+Summary of what you'll do:
+1. Set `~/.claude/settings.json` → `statusLine.command` to `"npx -y ccstatusline@latest"` with `padding: 0`.
+2. Run `npx -y ccstatusline@latest` to launch the TUI.
+3. Build a 3-line layout with built-in widgets + three `CustomCommand` widgets invoking `render_segments.py --segment ctx|block|month`.
+
+### Legacy statusline (v0.1.x)
+
+If you're still on the one-line `claude-cost.sh`:
 
 ```json
 {
@@ -40,7 +62,7 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-Replace `<path-to-plugin>` with the absolute path — e.g. `~/.claude/plugins/claude-tracker` if installed from the marketplace. The script is self-caching: the bar reads an on-disk snapshot instantly and refreshes in the background every 30 seconds.
+This path is preserved through v0.2.x for migration safety. Scheduled removal in v0.3.0.
 
 ### Install the macOS menu bar (optional)
 
@@ -103,11 +125,25 @@ If you're comparing to an older tracker that ignored cache tokens, expect this n
 
 ## Statusline output
 
+### v2 (ccstatusline-based)
+
+```
+~/plugin-playground  ⎇ main (+2,-1)
+Opus 4.7  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
+5h ▓▓▓░░░░░░░ 2h14m left · $71.98  ·  💰 $769.45 mo
+```
+
+- **Context bar** fills per-model (Opus/Sonnet: 1M, Haiku: 200K, or `CLAUDE_CTX_LIMIT` env override). Green < 70%, yellow 70-89%, red ≥ 90%.
+- **5h bar** tracks time elapsed in the current Anthropic 5h billing block. Block cost shown next to remaining time.
+- **💰 month** is current-month-to-date. Subscription users see `$X.XX eq` suffix — a reminder this is API-equivalent, not your actual bill.
+
+### v1 (legacy)
+
 ```
 💬 $719.33 │ 5h $22.31
 ```
 
-Month cost on the left, current-5h-window cost on the right. Subscription users see `$719.33 eq` (the `eq` suffix is your reminder that this is API-equivalent, not your bill).
+Month cost on the left, last-5-hours cost on the right. Same `eq` suffix rule applies.
 
 ---
 
@@ -119,8 +155,8 @@ Month cost on the left, current-5h-window cost on the right. Subscription users 
 
 ## Limitations
 
-- **Tier (Pro / Max / Team) is not auto-detected.** Anthropic doesn't expose it locally. Future work: a config option for manual tier declaration + a cap-progress bar.
-- **Window reset time is wall-clock "last 5 hours"**, not the exact Anthropic reset moment. Close enough for most purposes; can be refined if Anthropic exposes reset state via API.
+- **Tier (Pro / Max / Team) is not auto-detected.** Anthropic doesn't expose it locally. v2 statusline works on any plan; team-plan quota widgets (SessionUsage / WeeklyUsage) are opt-in via the ccstatusline TUI.
+- **v1 window is wall-clock "last 5 hours."** v2 detects Anthropic's actual 5h billing block by walking transcript timestamps.
 - **Per-user attribution on Team is not supported** — logs are per-machine. The tracker shows *your* usage only.
 - **OpenCode logs** are parsed if present at `~/.local/share/opencode/log/`, but model detection on OpenCode's format is approximate.
 
@@ -130,7 +166,7 @@ Month cost on the left, current-5h-window cost on the right. Subscription users 
 
 Everything is local. No network calls. No data leaves your machine. The plugin reads:
 - `~/.claude/projects/**/*.jsonl` (usage logs, no message content needed for counting)
-- Cache file at `$TMPDIR/claude-tracker-status.line`
+- Cache files at `$TMPDIR/claude-tracker-status.v2.json` (v2) and `$TMPDIR/claude-tracker-status.line` (v1 legacy)
 - Optional `~/.local/share/opencode/log/*.log`
 
 It does **not** read `~/.claude/.credentials.json` contents (only checks existence).
