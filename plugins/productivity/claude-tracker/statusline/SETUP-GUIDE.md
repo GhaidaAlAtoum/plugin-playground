@@ -16,8 +16,10 @@ The install script prints the right absolute path regardless of how you installe
 
 | Install method | Typical plugin path |
 |---|---|
-| **Marketplace** (`/plugin install claude-tracker@<marketplace>`) | `~/.claude/plugins/cache/<marketplace-name>/claude-tracker/` |
+| **Marketplace** (`/plugin install claude-tracker@<marketplace>`) | `~/.claude/plugins/cache/<marketplace-name>/claude-tracker/<version>/` |
 | **Local git clone** | `<wherever-you-cloned>/plugins/productivity/claude-tracker/` |
+
+> ⚠️ **Marketplace paths include the plugin version** (e.g. `.../claude-tracker/0.2.0/...`). That means every time you upgrade the plugin, the absolute path changes — the old `<version>` directory is swapped for the new one, and the `commandPath` strings in your ccstatusline config silently break. **After any upgrade, rerun `install-ccstatusline.sh` and paste the fresh strings into each Custom Command widget.** (Local clones don't have this problem — the path stays put.)
 
 Everywhere this guide shows `<PYTHON>` or `<PLUGIN_DIR>`, substitute the strings the install script printed for you.
 
@@ -159,7 +161,7 @@ For every Custom Command widget you added in steps 5 and 6, open its widget opti
 
 **Don't retype these.** Copy the three fully-resolved strings printed by `install-ccstatusline.sh` — it already figured out your Python interpreter and your plugin install path. They will look like one of:
 
-- `~/.claude/plugins/cache/<marketplace>/claude-tracker/statusline/render_segments.py …` (marketplace install)
+- `~/.claude/plugins/cache/<marketplace>/claude-tracker/<version>/statusline/render_segments.py …` (marketplace install — note the version segment)
 - `/path/to/your/clone/plugins/productivity/claude-tracker/statusline/render_segments.py …` (local clone)
 
 > ⚠️ **Don't use plain `python3 …`** — on a machine with pyenv, the shim adds ~1s per invocation and will exceed the timeout. Always use the absolute interpreter path, which the install script printed for you.
@@ -218,4 +220,16 @@ If it doesn't, sanity-check in order:
 
 Just re-run `npx -y ccstatusline@latest`. Your saved config is picked up automatically; you can tweak and re-save without starting over.
 
-If you reinstalled or moved the plugin and the statusline now shows dashes, rerun `install-ccstatusline.sh` to get the fresh paths, then paste them into each Custom Command's `commandPath` in the TUI.
+### After upgrading the plugin (marketplace users)
+
+Marketplace installs live at a versioned path (`…/claude-tracker/<version>/…`), so **every plugin upgrade breaks the old `commandPath` strings** saved in `~/.config/ccstatusline/settings.json`. The statusline will fall back to dim dashes until you refresh.
+
+To recover:
+
+```bash
+bash ~/.claude/plugins/cache/<marketplace-name>/claude-tracker/<new-version>/statusline/install-ccstatusline.sh
+```
+
+Copy the three printed commands, then in the ccstatusline TUI (`npx -y ccstatusline@latest` → Edit Lines → each Custom Command widget → edit cmd) paste the new `commandPath` for each of the ctx / block / month widgets. Save with Ctrl+S and restart Claude Code.
+
+Local-clone installs don't have this problem — the path stays put across `git pull`s.
