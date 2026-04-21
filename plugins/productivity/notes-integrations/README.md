@@ -242,6 +242,6 @@ claude plugin marketplace add ghaidaatoum/plugin-playground
 ```
 Then install both `daily-notes` and `notes-integrations` from the **Discover** tab in `/plugin`.
 
-After installing, run `/init` once (provided by `daily-notes`) to scaffold your notes folder and profile. Then run `/doctor` — it reports which of the optional MCPs this plugin uses (Atlassian, Unblocked) are detected in your Claude Code session. Absent MCPs are never errors; the corresponding skills simply stay unavailable.
+**Full walkthrough:** [`docs/setup-guide.md`](docs/setup-guide.md) — covers MCP setup, `/doctor` verification, the enrichment flow, and common pitfalls.
 
-> **Never-bundled MCPs.** This plugin does not ship, prompt for, or install any MCP server. Add MCPs separately via your Claude Code settings — `/doctor` will pick them up automatically on the next run.
+> **Never-bundled MCPs.** This plugin does not ship, prompt for, or install any MCP server. Add MCPs separately via your Claude Code settings — `/doctor` (in `daily-notes`) will pick them up automatically on the next run.

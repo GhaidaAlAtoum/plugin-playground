@@ -1,5 +1,5 @@
 ---
-description: Interactive first-run setup — scaffolds the notes folder, writes the profile block, and gets you from zero to running /start without touching the shell
+description: Interactive first-run setup — scaffolds the notes folder, writes the profile block, gets you ready to run /start
 ---
 
 Interactive onboarding. Scaffolds the notes folder tree, creates the starter files, and writes the Daily Notes Plugin Profile block into the user's `~/.claude/CLAUDE.md`. Idempotent — detects existing vault and offers reuse.

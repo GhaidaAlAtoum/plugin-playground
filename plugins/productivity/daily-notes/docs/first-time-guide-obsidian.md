@@ -257,8 +257,10 @@ Weekly        /task archive
 
 ## What's next
 
+- **See the full rhythm** — [`day-in-the-life.md`](day-in-the-life.md) walks through one weekday end-to-end, showing every skill in context (with Obsidian callouts highlighted).
+- **Pull from Jira / enrich meetings** — install the companion `notes-integrations` plugin for live Jira status, `/jira-pull`, `/enrich-meeting`, and recap reports. Works the same in Obsidian or plain markdown vaults. Setup: [`../../notes-integrations/docs/setup-guide.md`](../../notes-integrations/docs/setup-guide.md).
 - **Role-specific skills** — manager? Set `role: manager` to unlock `/one-on-one-prep` and `/team-recap`. See [`README.md`](../README.md#role-specific-workflows).
 - **Shortcuts.app recipes** — one-tap standup / quick-note from the menu bar. See [`shortcuts/README.md`](../shortcuts/README.md).
 - **Periodic Notes** — set up weekly and monthly notes in the Obsidian plugin settings, pointing at `Templates/Daily Note.md` as a base.
 
-For the full reference, see [`README.md`](../README.md) and [`CLAUDE.md`](../CLAUDE.md).
+For the full reference, see [`README.md`](../README.md), [`CLAUDE.md`](../CLAUDE.md), and the [role profile reference](role-profile-reference.md).

@@ -16,42 +16,23 @@ Single entry point for task operations. Reads the first argument and dispatches 
 
 If the first argument is not one of these verbs, treat the whole argument as a title for `create` (makes the common case `/task "fix login bug"` work).
 
----
+## Task file format
 
-## Task format (shared schema)
+The canonical task-file frontmatter and body format (plain markdown plus the `obsidian: true` and `obsidian_tasks: true` variants) lives in `${CLAUDE_PLUGIN_ROOT}/references/note-formats.md` under the **Task file** section. Read it once at the start of `create` or `update`. Never reinvent the schema inline.
 
-Tasks are individual `.md` files in `Tasks/` with YAML frontmatter:
+Recap of the field names you'll touch:
 
-```markdown
----
-status: open
-priority: medium
-due: YYYY-MM-DD
-scheduled: YYYY-MM-DD
-tags: [task]
----
-
-# Task title
-
-Brief description (1-2 sentences).
-```
-
-**Status values:** `open`, `in-progress`, `in-review`, `blocked`, `done`
-**Priority values:** `high`, `medium`, `low`
-**Optional fields:** `due`, `scheduled`, `completedDate` (only for `done` tasks), `jira:`, `jira_url:`, `release:` (free-text label used by `/release-notes` to bucket tasks into a named release, e.g. `release: v2.4`)
-
-**Obsidian profile check:** If `obsidian: true` is set in the Daily Notes Plugin Profile, add `created: YYYY-MM-DD` and `type: task` to the frontmatter. If `obsidian_tasks: true` is also set, append a Tasks-plugin checkbox at the end of the task body:
-```
-- [ ] Task title 🔼 📅 YYYY-MM-DD
-```
-Priority emoji: `high` → `🔼`, `medium` → (omit), `low` → `🔽`. Only include `📅 date` if a due date is set.
+- **Required:** `status`, `priority`, `tags`.
+- **`status` values:** `open`, `in-progress`, `in-review`, `blocked`, `done`.
+- **`priority` values:** `high`, `medium`, `low`.
+- **Optional:** `due`, `scheduled`, `completedDate` (required when `status: done`), `jira:`, `jira_url:`, `release:` (free-text label, consumed by `/release-notes`).
 
 ---
 
 ## `create` — guided task creation
 
 1. Generate a natural-language filename (max 10 words, e.g. `Review deployment checklist for staging.md`).
-2. Derive frontmatter values from the provided information.
+2. Derive frontmatter values from the provided information, following the format in `references/note-formats.md`.
 3. Check `Tasks/*.md` — do not duplicate an existing task.
 4. Propose the task for approval:
    ```
@@ -62,9 +43,9 @@ Priority emoji: `high` → `🔼`, `medium` → (omit), `low` → `🔽`. Only i
    Release:   <label or "not set">
    ```
 5. If a due date cannot be inferred, ask for it — never skip this step even in bulk workflows.
-6. If the user's phrasing mentions a release (e.g. "for v2.4", "Q2 release"), populate the `release:` field with that label and show it in the proposal. Otherwise omit it.
+6. If the user's phrasing mentions a release (e.g. "for v2.4", "Q2 release"), populate `release:` with that label and show it in the proposal. Otherwise omit it.
 7. Wait for **accept**, **reject**, or **adjust** before writing the file.
-8. On acceptance, write the file to `Tasks/`.
+8. On acceptance, write the file to `Tasks/`. Apply the Obsidian frontmatter and Tasks-plugin checkbox additions from the reference file if `obsidian: true` / `obsidian_tasks: true` are set.
 
 ---
 

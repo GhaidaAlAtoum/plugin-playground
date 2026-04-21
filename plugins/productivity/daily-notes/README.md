@@ -4,6 +4,15 @@ A personal note-tracking system for Claude Code. Keeps your scratch pad, tasks, 
 
 Works out of the box for anyone. Optionally enable per-person contact tracking by setting a role profile in your global `~/.claude/CLAUDE.md` (see [Configuration](#configuration)).
 
+## Docs
+
+- **[First-time guide (plain markdown)](docs/first-time-guide.md)** — 5-minute setup, no Obsidian needed.
+- **[First-time guide (Obsidian)](docs/first-time-guide-obsidian.md)** — 10-minute setup with Dataview + Periodic Notes.
+- **[A day in the life](docs/day-in-the-life.md)** — one weekday end-to-end, every skill in context (includes `notes-integrations` where applicable).
+- **[Role profile reference](docs/role-profile-reference.md)** — full field docs, role behavior table, example profiles.
+
+For the Jira / Unblocked enrichment layer: [`notes-integrations` setup guide](../notes-integrations/docs/setup-guide.md).
+
 ---
 
 ## Requirements
@@ -244,7 +253,7 @@ The plugin works without any configuration. To enable per-person meeting routing
 - recurring_meetings_label: 1:1
 ```
 
-See [`CLAUDE.md`](CLAUDE.md) for the full field reference and example profiles for different roles (IC engineer, consultant, PhD student, etc.).
+See [`CLAUDE.md`](CLAUDE.md) for the field schema, and [`docs/role-profile-reference.md`](docs/role-profile-reference.md) for the full field docs and example profiles (IC engineer, manager, PO, consultant, PhD student, etc.).
 
 ### Optional: macOS notifications
 

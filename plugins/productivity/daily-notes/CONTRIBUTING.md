@@ -128,4 +128,35 @@ Rules:
 2. Update `README.md` — add to skills table and usage examples.
 3. Update this file — add the skill to the data flow diagram if it reads or writes any files.
 4. Follow the error-message pattern above for every external dependency.
-5. Bump the patch or minor version in `plugin.json`.
+5. Use `references/` for shared template content (see below) instead of embedding large templates inline.
+6. Bump the patch or minor version in `plugin.json`.
+
+### Shared reference files — `references/`
+
+Skill bodies load into context on every invocation. Large inlined templates, query blocks, or osascript commands balloon that cost. The `references/` directory holds canonical template content that skills point to on demand via `${CLAUDE_PLUGIN_ROOT}/references/<file>.md`.
+
+Current reference files:
+
+| File | Contents | Consumed by |
+|---|---|---|
+| `references/note-formats.md` | Task, meeting-note, daily-note, contact-log, and 1:1-prep-block formats (plain + Obsidian variants side-by-side). | `/sync`, `/wrap-up`, `/task`, `/one-on-one-prep` |
+| `references/obsidian-templates.md` | Dashboard.md Dataview queries and the Daily Note / Meeting Note template literals. | `/obsidian-setup` |
+| `references/macos-integration.md` | `osascript` notification and dialog commands, permission-grant instructions, error-handling pattern. | `/reminders` |
+
+**Pattern for new skills that need a template:**
+
+```markdown
+## <Section>
+
+The canonical <thing> format lives in `${CLAUDE_PLUGIN_ROOT}/references/<file>.md` under **<Section heading>**. Read it when <condition> — never inline the template here.
+```
+
+Skills read the reference file only when the relevant branch is hit (e.g., Obsidian variant selected, macOS notifications enabled). Never read both variants in a single invocation.
+
+**When to add a new reference file:**
+
+- The template exceeds ~30 lines, **and**
+- It's duplicated across 2+ skills, **or**
+- It changes independently of the skill's control flow.
+
+Small one-off examples can stay inline. The goal is per-invocation token savings on heavy skills — not wholesale extraction.

@@ -4,9 +4,13 @@ description: End-of-day closeout — catch stragglers, update tasks, finalize da
 
 End-of-day closeout. Make sure nothing falls through the cracks.
 
+## Daily note format
+
+Uses the canonical daily-note format in `${CLAUDE_PLUGIN_ROOT}/references/note-formats.md` (plain markdown default, Obsidian variant if `obsidian: true`). Read that file in step 4.
+
 ## Steps
 
-1. **Catch stragglers**: Read `Scratch Pad.md` and check `Meetings/` for anything unprocessed. If there's content, run the same processing as /sync. If everything's clean, move on.
+1. **Catch stragglers**: Read `Scratch Pad.md` and check `Meetings/` for anything unprocessed. If there's content, run the same processing as `/sync`. If everything's clean, move on.
 
 2. **Task updates**: Glob all `Tasks/*.md` and read frontmatter:
    - Anything worked on today still marked `status: open`? Ask if it should move to `in-progress`.
@@ -15,34 +19,14 @@ End-of-day closeout. Make sure nothing falls through the cracks.
 
 3. **Talking Points cleanup**: Read `Talking Points.md`. Cross-reference with any meetings processed today. If talking points for a person were likely addressed, ask if they should be cleared. Remove confirmed items; remove the person's entire section if no points remain.
 
-4. **Daily Note finalization**: Open today's `Daily Notes/YYYY-MM-DD.md` (create if missing). Add or update:
-
-   **Plain markdown** (default):
-   ```
-   ## End of Day
-   (2-3 sentence summary of what got done, what didn't, what shifted)
-
-   ## Carry Forward
-   (anything unfinished that needs attention tomorrow)
-   ```
-
-   **Obsidian profile check:** If `obsidian: true` is set, use callouts instead:
-   ```markdown
-   > [!success] End of Day
-   > 2-3 sentence summary of what got done, what didn't, what shifted
-
-   > [!attention] Carry Forward
-   > Anything unfinished that needs attention tomorrow
-   ```
-
-   Merge with existing content — do not overwrite earlier sections written by /sync.
+4. **Daily Note finalization**: Open today's `Daily Notes/YYYY-MM-DD.md` (create if missing). Append or update the **End of Day** and **Carry Forward** sections from the daily-note format in `references/note-formats.md` — plain sections by default, `> [!success]` and `> [!attention]` callouts if `obsidian: true`. Merge with existing content — do not overwrite earlier sections written by `/sync`.
 
 5. **Memory update**: Write a concise context snapshot to `.claude/memory.md`. Include:
    - What I was actively working on and where I left off
    - Anything blocked and why
    - Follow-ups or reminders for tomorrow
    - Key decisions made today
-   Keep it tight — this is for tomorrow's /start to scan in under 10 seconds. Replace yesterday's carry-forward notes rather than appending indefinitely.
+   Keep it tight — this is for tomorrow's `/start` to scan in under 10 seconds. Replace yesterday's carry-forward notes rather than appending indefinitely.
 
 6. **Clear Scratch Pad**: If anything was processed in step 1, clear `Scratch Pad.md` after confirming.
 

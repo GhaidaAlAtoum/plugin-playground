@@ -1,5 +1,5 @@
 ---
-description: Health check — verifies folder structure, profile fields, and reports which optional MCPs are currently available. Detects only; never installs or modifies MCP config
+description: Health check — verifies folder structure, profile fields, and detects available MCPs. Read-only
 ---
 
 Run a diagnostic check against the user's notes vault and global profile. Report what's working, what's missing, and how to fix each issue.

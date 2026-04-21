@@ -53,6 +53,8 @@ When it asks:
 | Display name | Your first name |
 | Role | `ic`, `manager`, `po`, or free text — affects nudges only |
 | Track per-person contacts? | **y** if you have recurring 1:1s with teammates, **n** otherwise |
+| Contacts folder name | `People` (default) — only asked if you said **y** above. `Clients`, `Advisors`, etc. also work. |
+| Recurring meeting label | `1:1` (default) — only asked if you said **y** above. Match whatever you call your recurring meetings (`check-in`, `sync`). |
 | macOS notifications? | **y** if you want `/reminders` to pop native alerts |
 | Obsidian vault? | **n** ← this guide |
 
@@ -218,8 +220,10 @@ Weekly        /task archive      → sweep done tasks
 
 ## What's next
 
+- **See the full rhythm** — [`day-in-the-life.md`](day-in-the-life.md) walks through one weekday end-to-end, showing every skill in context.
+- **Pull from Jira / enrich meetings** — install the companion `notes-integrations` plugin for live Jira status in `/start`, `/jira-pull`, `/enrich-meeting`, and recap reports. Setup: [`../../notes-integrations/docs/setup-guide.md`](../../notes-integrations/docs/setup-guide.md).
 - **Role-specific skills** — if you're a manager, set `role: manager` + `track_contacts: true` to unlock `/one-on-one-prep` and `/team-recap`. See [`README.md`](../README.md#role-specific-workflows).
 - **Shortcuts.app recipes** — one-tap "morning standup" and "quick note" triggers from the menu bar. See [`shortcuts/README.md`](../shortcuts/README.md).
 - **Try Obsidian later** — your notes are already compatible. When you're ready, set `obsidian: true` in your profile and run `/obsidian-setup`. Guide: [`first-time-guide-obsidian.md`](first-time-guide-obsidian.md).
 
-For the full reference, see [`README.md`](../README.md) and [`CLAUDE.md`](../CLAUDE.md).
+For the full reference, see [`README.md`](../README.md), [`CLAUDE.md`](../CLAUDE.md), and the [role profile reference](role-profile-reference.md).

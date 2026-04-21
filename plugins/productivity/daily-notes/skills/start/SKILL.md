@@ -1,5 +1,5 @@
 ---
-description: Morning standup — surface open tasks, talking points, carry-forward context; adapts to show Jira status when that integration is available
+description: Morning standup — open tasks, talking points, carry-forward; adds live Jira status when Atlassian MCP is present
 ---
 
 Morning standup — read my current state and help me plan the day. Adapts based on whether the Atlassian MCP is available in this session.

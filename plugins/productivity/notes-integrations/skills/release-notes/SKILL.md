@@ -1,5 +1,5 @@
 ---
-description: Aggregate shipped, in-progress, and carryover tasks into changelog-style release notes — local-first, optional Atlassian enrichment
+description: Aggregate shipped, in-progress, and carryover tasks into changelog-style release notes — local-first, MCP-optional
 ---
 
 Generate changelog-style release notes from local tasks for a release label or time window. Primarily for POs (`role: po`) and engineers cutting a release.
