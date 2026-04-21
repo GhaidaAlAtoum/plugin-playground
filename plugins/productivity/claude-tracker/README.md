@@ -180,10 +180,10 @@ Month cost on the left, last-5-hours cost on the right. Same `eq` suffix rule ap
 
 Everything is local. No network calls. No data leaves your machine. The plugin reads:
 - `~/.claude/projects/**/*.jsonl` (usage logs, no message content needed for counting)
-- Cache files at `$TMPDIR/claude-tracker-status.v2.json` (v2) and `$TMPDIR/claude-tracker-status.line` (v1 legacy)
+- Cache files at `~/.claude/.cache/claude-tracker-status.v2.json` (v2) and `~/.claude/.cache/claude-tracker-status.line` (v1 legacy)
 - Optional `~/.local/share/opencode/log/*.log`
 
-It does **not** read `~/.claude/.credentials.json` contents (only checks existence).
+It does **not** read `~/.claude/.credentials.json` contents (only checks existence). On macOS it runs `security find-generic-password -s "Claude Code-credentials"` to confirm OAuth login state — a metadata-only lookup that never unlocks or reads the credential.
 
 ---
 

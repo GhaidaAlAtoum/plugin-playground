@@ -25,7 +25,7 @@ sys.path.insert(0, str(HERE))         # import ctx_limits
 import tracker_core as tc  # noqa: E402
 import ctx_limits  # noqa: E402
 
-CACHE_DIR = Path(os.environ.get("TMPDIR", "/tmp"))
+CACHE_DIR = Path(os.path.expanduser("~/.claude/.cache"))
 CACHE_FILE = CACHE_DIR / "claude-tracker-status.v2.json"
 LOCK_FILE = CACHE_DIR / "claude-tracker-status.v2.lock"
 
@@ -116,7 +116,10 @@ def _fmt_time_to_reset(seconds: float, end: datetime) -> str:
 
 
 def _eq_suffix(auth_mode: str) -> str:
-    return " eq" if auth_mode == "subscription" else ""
+    # Only `api_key` mode sees actual-spend numbers. Subscription *and*
+    # `unknown` (e.g. macOS Keychain miss) both render API-equivalent cost,
+    # so both get the `eq` tag to avoid reading like an actual bill.
+    return "" if auth_mode == "api_key" else " eq"
 
 
 # --- cache ---------------------------------------------------------------
@@ -187,6 +190,7 @@ def _maybe_spawn_refresh(cache: dict) -> None:
 def _refresh() -> None:
     """Background path: do the expensive scans and update the cache."""
     try:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
         LOCK_FILE.touch()
     except OSError:
         return

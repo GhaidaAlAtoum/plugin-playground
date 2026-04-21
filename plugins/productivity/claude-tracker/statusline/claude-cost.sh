@@ -5,7 +5,7 @@
 # Empty stdout = blank bar (never crash the UI).
 #
 # Design: log scans take ~1–2s so we NEVER block the statusline on them.
-#   - Cache in $TMPDIR/claude-tracker-status.line (plain text, one line).
+#   - Cache in ~/.claude/.cache/claude-tracker-status.line (plain text, one line).
 #   - If cache is stale (> TTL seconds), spawn tracker_core.py in background
 #     to refresh for the next render.
 #   - Always print whatever's in the cache right now — even if slightly stale.
@@ -19,9 +19,10 @@ TTL_SECONDS=30
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CORE="$SCRIPT_DIR/../tracker_core.py"
-CACHE_DIR="${TMPDIR:-/tmp}"
+CACHE_DIR="$HOME/.claude/.cache"
 CACHE_FILE="$CACHE_DIR/claude-tracker-status.line"
 LOCK_FILE="$CACHE_DIR/claude-tracker-status.lock"
+mkdir -p "$CACHE_DIR" 2>/dev/null || true
 
 now=$(date +%s 2>/dev/null || echo 0)
 cache_mtime=0
@@ -44,7 +45,7 @@ try:
     w = json.loads(window_raw) if window_raw else {}
 except json.JSONDecodeError:
     sys.exit(1)
-suffix = " eq" if m.get("auth_mode") == "subscription" else ""
+suffix = "" if m.get("auth_mode") == "api_key" else " eq"
 line = f"💬 ${m.get('cost', 0):,.2f}{suffix} │ 5h ${w.get('cost', 0):,.2f}"
 fd, tmp = tempfile.mkstemp(dir=os.path.dirname(cache_path) or ".", prefix=".tracker-status.")
 with os.fdopen(fd, "w") as f:

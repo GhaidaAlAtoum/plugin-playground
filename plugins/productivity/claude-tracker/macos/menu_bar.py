@@ -50,7 +50,7 @@ class ClaudeTrackerApp(rumps.App):
 
         self.pricing = tc.Pricing.load()
         self.auth_mode = tc.detect_auth_mode()
-        self.suffix = " eq" if self.auth_mode == "subscription" else ""
+        self.suffix = "" if self.auth_mode == "api_key" else " eq"
 
         # {filepath: {'pos': int, 'month_cost': float, 'mtime': float}}
         self.file_states: dict[str, dict] = {}

@@ -9,12 +9,16 @@ set -u
 # Discard stdin — the Stop hook passes session JSON but we don't need it.
 cat > /dev/null 2>&1 || true
 
-CACHE_DIR="${TMPDIR:-/tmp}"
+CACHE_DIR="$HOME/.claude/.cache"
+LEGACY_TMP="${TMPDIR:-/tmp}"
 
-# Best-effort: delete both v1 (legacy) and v2 caches. Ignore errors.
+# Best-effort: delete both v1 (legacy) and v2 caches in the current location,
+# plus the pre-0.3.0 TMPDIR location for users upgrading. Ignore errors.
 rm -f \
   "$CACHE_DIR/claude-tracker-status.line" \
   "$CACHE_DIR/claude-tracker-status.v2.json" \
+  "$LEGACY_TMP/claude-tracker-status.line" \
+  "$LEGACY_TMP/claude-tracker-status.v2.json" \
   2>/dev/null || true
 
 exit 0

@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-04-21
+
 ### Added
 - `transcript_summary()` helper in `tracker_core.py` — sums cost/usage for a single Claude Code session from its transcript file.
 - New `💬 Session` statusline segment showing current CLI session cost, driven by `transcript_path` from the statusline stdin payload.
@@ -13,10 +15,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 - Default layout now recommends ccstatusline's built-in **`ThinkingEffort`** widget on line 2, showing the current thinking level (`low` / `medium` / `high` / `max`). Requires ccstatusline v2.3+.
 - 5h segment now shows the local clock time of the next reset alongside remaining duration (e.g. `1h28m → 6pm`), matching the reset hour `/usage` displays for the subscription.
 - `install-ccstatusline.sh` auto-refreshes Custom Command `commandPath` strings in `~/.config/ccstatusline/settings.json` on upgrade, so users don't have to re-paste into the TUI after a plugin version bump. Backup written to `.bak`.
+- `detect_auth_mode()` now checks the macOS Keychain (`security find-generic-password -s "Claude Code-credentials"`) for OAuth credentials. Claude Code on recent macOS builds stores creds in Keychain instead of `~/.claude/.credentials.json`, which was causing subscription users to fall through to `unknown`. Metadata-only lookup — does not unlock or read the credential.
 
 ### Changed
 - Statusline 5h segment displays `Xh Ym → 6pm` aligned to the clock hour (approximates `/usage` subscription reset) instead of `X left` from the exact first-message timestamp. Entry filtering for the cost calculation still uses the exact block start, so the displayed cost is unchanged.
 - Default `install-ccstatusline.sh` layout: bottom row is now `block · session` instead of `block · month`.
+- Statusline `eq` suffix now appears for every auth mode *except* `api_key` (previously: only `subscription`). Subscription users whose auth_mode couldn't be detected (Keychain miss on older code, non-mac OAuth flows) were seeing a bare `$1,004.94 mo` that read like an actual bill. Now they get `$1,004.94 mo eq`, making it clear the figure is API-equivalent. Applies to `render_segments.py`, legacy `claude-cost.sh`, and the macOS menu bar app.
+- Statusline cache moved from `$TMPDIR/claude-tracker-status.*` to `~/.claude/.cache/claude-tracker-status.*`. macOS periodically purges per-user temp dirs, which was causing intermittent `$—.—— mo` dashes during active use until the background refresher rebuilt the cache. The new location survives across reboots and temp-dir cleanup. `stop-invalidate-cache.sh` also clears the old TMPDIR paths so upgrades don't leave orphaned cache files behind.
 
 ### Fixed
 - Fixed stuck `resetting now` on the 5h segment when the first-message minute wasn't `:00`. `block_window` now hour-anchors `block_start` before rolling, so the `now < end` invariant is preserved through the full 5h window instead of being broken by a display-time floor that moved `end` backward by up to 59 min.

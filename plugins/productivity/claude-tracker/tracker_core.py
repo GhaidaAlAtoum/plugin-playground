@@ -78,15 +78,33 @@ class Pricing:
 
 # --- auth mode detection --------------------------------------------------
 
+def _has_macos_keychain_credential() -> bool:
+    """macOS only. Returns True iff Claude Code has an OAuth credential in the
+    login keychain. Uses `security find-generic-password` metadata lookup —
+    does NOT read the password, so no auth prompt."""
+    if sys.platform != "darwin":
+        return False
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["security", "find-generic-password", "-s", "Claude Code-credentials"],
+            capture_output=True, timeout=1,
+        )
+        return r.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
 def detect_auth_mode() -> str:
     """
     Returns one of: api_key, subscription, unknown.
 
-    Heuristic — does NOT read credential file contents:
-      - ANTHROPIC_API_KEY env set   → api_key
-      - ~/.claude/.credentials.json exists → subscription (OAuth login)
-      - otherwise                   → unknown
-    The tier (pro/max/team) is user-declared via the plugin config, since we
+    Heuristic — does NOT read credential contents:
+      - ANTHROPIC_API_KEY env set                         → api_key
+      - ~/.claude/.credentials.json present (older OAuth) → subscription
+      - macOS Keychain has "Claude Code-credentials"      → subscription
+      - otherwise                                         → unknown
+    The tier (pro/max/team) is user-declared via plugin config, since we
     can't derive it locally.
     """
     if os.environ.get("ANTHROPIC_API_KEY"):
@@ -96,6 +114,8 @@ def detect_auth_mode() -> str:
             return "subscription"
     except OSError:
         pass
+    if _has_macos_keychain_credential():
+        return "subscription"
     return "unknown"
 
 
