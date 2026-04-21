@@ -322,6 +322,13 @@ def block_window(
     activity. The `now` roll keeps the bar honest during silent minutes
     between a rollover and the next message.
 
+    `block_start` is anchored to the top of the clock hour of the
+    first-of-block entry. Anthropic's /usage displays reset times on the
+    hour ("Resets 6pm"), so hour-aligning the anchor here — rather than
+    flooring the display timestamp later — keeps the `now < end`
+    invariant intact (flooring after the roll would move `end` backward
+    by up to 59 min and break the remaining-time calculation).
+
     Returns (start, end) of the most recent block, or None if no entries.
     """
     ts_entries = [e for e in entries if e.timestamp is not None]
@@ -329,11 +336,15 @@ def block_window(
         return None
     ts_entries.sort(key=lambda e: e.timestamp)
     gap = timedelta(hours=hours)
-    block_start = ts_entries[0].timestamp
+
+    def hour_floor(dt: datetime) -> datetime:
+        return dt.replace(minute=0, second=0, microsecond=0)
+
+    block_start = hour_floor(ts_entries[0].timestamp)
     prev = ts_entries[0].timestamp
     for e in ts_entries[1:]:
         if e.timestamp - prev >= gap:
-            block_start = e.timestamp
+            block_start = hour_floor(e.timestamp)
         else:
             while e.timestamp - block_start >= gap:
                 block_start = block_start + gap

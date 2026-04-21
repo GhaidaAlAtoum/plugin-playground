@@ -199,15 +199,10 @@ def _refresh() -> None:
             block_entries = [e for e in entries_24h
                              if e.timestamp and e.timestamp >= start]
             s_block = tc.summarize(block_entries, pricing)
-            # Align displayed window to the clock hour — approximates the
-            # subscription rate-limit reset shown in /usage. Entry filtering
-            # above still uses the exact block start so the cost is accurate.
-            display_start = start.replace(minute=0, second=0, microsecond=0)
-            display_end = display_start + timedelta(hours=5)
             cache["block"] = {
                 "ts": _now_epoch(),
-                "start": display_start.isoformat(),
-                "end": display_end.isoformat(),
+                "start": start.isoformat(),
+                "end": end.isoformat(),
                 "cost": s_block.cost,
                 "auth_mode": auth,
             }
