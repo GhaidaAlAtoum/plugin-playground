@@ -129,11 +129,12 @@ If you're comparing to an older tracker that ignored cache tokens, expect this n
 
 ```
 ~/plugin-playground  ⎇ main (+2,-1)
-Opus 4.7  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
+Opus 4.7  ·  high  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
 5h ▓▓▓▓▓▓▓▓░░ 29m to reset · $16.08  ·  💬 Session $0.42
 ```
 
 - **Context bar** fills per-model (Opus/Sonnet: 1M, Haiku: 200K, or `CLAUDE_CTX_LIMIT` env override). Green < 70%, yellow 70-89%, red ≥ 90%.
+- **Thinking effort** (`low` / `medium` / `high` / `max`) is rendered by ccstatusline's built-in `ThinkingEffort` widget — no Custom Command needed.
 - **5h bar** tracks the current Anthropic 5h billing block, **clock-hour aligned** so the "X to reset" time approximates the subscription reset shown in `/usage`. Block cost shown next to the countdown.
 - **💬 Session** is cost for your current Claude Code conversation (this `transcript_path`). Resets on `/clear` or a new session.
 - Subscription users see `$X.XX eq` suffix on both cost values — a reminder these are API-equivalent, not your actual bill.

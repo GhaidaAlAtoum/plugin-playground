@@ -129,8 +129,11 @@ say "   ${DIM}$ npx -y ccstatusline@latest${RESET}"
 echo
 say "3. ${BOLD}Build a 3-line layout${RESET}:"
 say "   Line 1: CurrentWorkingDir · GitBranch · GitChanges"
-say "   Line 2: Model · SessionClock · ${BOLD}CustomCommand${RESET} (ctx segment)"
+say "   Line 2: Model · ThinkingEffort · SessionClock · ${BOLD}CustomCommand${RESET} (ctx segment)"
 say "   Line 3: ${BOLD}CustomCommand${RESET} (block segment) · ${BOLD}CustomCommand${RESET} (session segment)"
+echo
+say "   ${DIM}ThinkingEffort is a ccstatusline built-in (Category: Core) — shows the${RESET}"
+say "   ${DIM}current thinking level (low/medium/high/max). No Custom Command needed.${RESET}"
 echo
 say "4. ${BOLD}For each CustomCommand widget${RESET}, set:"
 say "   - ${BOLD}preserveColors${RESET}: true"

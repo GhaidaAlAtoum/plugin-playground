@@ -1,6 +1,6 @@
 # Statusline v2 — TUI setup guide
 
-Step-by-step for configuring `ccstatusline` to render the claude-tracker v2 statusline (3 lines, colored context + 5h-block bars, month cost).
+Step-by-step for configuring `ccstatusline` to render the claude-tracker v2 statusline (3 lines: colored context bar, 5h reset countdown, current-session cost).
 
 > 📸 **About the screenshots:** the images below are from `ccstatusline` v2.2.8 on macOS. Your TUI may differ slightly per version, but the flow is the same.
 
@@ -67,8 +67,10 @@ Aim for **3 lines**:
 | Line | Widgets |
 |---|---|
 | **1** | Current Working Directory · Git Branch · Git Changes |
-| **2** | Model · Session Clock · **Custom Command** (ctx bar) |
-| **3** | **Custom Command** (5h block bar) · **Custom Command** (month cost) |
+| **2** | Model · **Thinking Effort** · Session Clock · **Custom Command** (ctx bar) |
+| **3** | **Custom Command** (5h reset countdown + block cost) · **Custom Command** (session cost) |
+
+> 🆕 **Thinking Effort** is a ccstatusline built-in widget (Category: Core) that shows the current thinking level — `low` / `medium` / `high` / `max`. Available in ccstatusline v2.3+.
 
 When you're done, the Lines overview should look like this:
 
@@ -103,15 +105,17 @@ To delete an unwanted default widget: select it, look for a "Remove" option or a
 
 ---
 
-## 5. Add Line 2 — model + session + ctx bar
+## 5. Add Line 2 — model + thinking effort + session + ctx bar
 
 Back out to the Lines list. Pick "Add Line" (or similar). On the new Line 2, add (in order):
 
 1. **Model**
 2. **Separator** (`|`)
-3. **Session Clock** (or "Session Duration")
+3. **Thinking Effort** (Category: Core — `low`/`medium`/`high`/`max`)
 4. **Separator** (`|`)
-5. **Custom Command** ← this one renders our colored Ctx bar
+5. **Session Clock** (or "Session Duration")
+6. **Separator** (`|`)
+7. **Custom Command** ← this one renders our colored Ctx bar
 
 ![Line 2 — Model, Session Clock, Custom Command (ctx)](./screenshots/step5-line2-model-session-ctx.png)
 
@@ -119,15 +123,15 @@ Keep reading for how to configure the Custom Command in step 7.
 
 ---
 
-## 6. Add Line 3 — 5h block + month cost
+## 6. Add Line 3 — 5h reset + session cost
 
 Add another line (Line 3). Add (in order):
 
-1. **Custom Command** ← 5h block bar
+1. **Custom Command** ← 5h reset countdown + block cost
 2. **Separator** (`|`)
-3. **Custom Command** ← month cost
+3. **Custom Command** ← current Claude Code session cost
 
-![Line 3 — two Custom Commands (block, month)](./screenshots/step6-line3-block-month.png)
+![Line 3 — two Custom Commands (block, session)](./screenshots/step6-line3-block-session.png)
 
 ---
 
@@ -140,7 +144,7 @@ For every Custom Command widget you added in steps 5 and 6, open its widget opti
 | `commandPath` | one of the three strings from the install script output |
 | `preserveColors` | **true** (critical — without this, the ANSI colors get stripped) |
 | `timeout` | `1000` (milliseconds; default) |
-| `maxWidth` | optional; `40` for ctx, `60` for block, `20` for month is a good start |
+| `maxWidth` | optional; `40` for ctx, `60` for block, `20` for session is a good start |
 
 **commandPath values** — these look like:
 
@@ -154,9 +158,9 @@ For every Custom Command widget you added in steps 5 and 6, open its widget opti
 <PYTHON> <PLUGIN_DIR>/statusline/render_segments.py --segment block
 ```
 
-**Month segment** (line 3, second):
+**Session segment** (line 3, second):
 ```
-<PYTHON> <PLUGIN_DIR>/statusline/render_segments.py --segment month
+<PYTHON> <PLUGIN_DIR>/statusline/render_segments.py --segment session
 ```
 
 **Don't retype these.** Copy the three fully-resolved strings printed by `install-ccstatusline.sh` — it already figured out your Python interpreter and your plugin install path. They will look like one of:
@@ -176,12 +180,14 @@ The Preview at the top of the TUI should now look something like this (colors in
 
 ```
 ~/plugin-playground  ⎇ main (+2,-1)
-Opus 4.7  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
-5h ▓▓▓░░░░░░░ 2h14m left · $71.98  ·  💰 $769.45 mo
+Opus 4.7  ·  high  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
+5h ▓▓▓▓▓▓▓▓░░ 29m to reset · $16.08  ·  💬 Session $0.42
 ```
 
 - **Ctx bar** should be green if < 70%, yellow 70–89%, red ≥ 90%.
-- **5h bar** fills as your Anthropic 5h block elapses; same color thresholds (red = nearly out of time).
+- **Thinking Effort** shows `low`/`medium`/`high`/`max` — whichever matches your current selection in Claude Code's model picker.
+- **5h bar** fills as the clock-hour-aligned 5h block elapses; same color thresholds (red = nearly out of time). The "X to reset" time approximates what `/usage` shows for the subscription reset.
+- **💬 Session** is cost of the current Claude Code conversation (resets on `/clear` or a new session).
 - **Numbers visible at all** = your `commandPath` and `preserveColors` are configured correctly.
 - If a Custom Command shows dim dashes (`░░░░ ??%`) — that's the cold-cache fallback. Wait ~2 seconds and it populates.
 
@@ -205,9 +211,9 @@ If it doesn't, sanity-check in order:
 2. `~/.config/ccstatusline/settings.json` exists and has 3 lines (`cat ~/.config/ccstatusline/settings.json | head -40`)
 3. Run one of the commandPath strings manually — substitute the `<PYTHON>` and `<PLUGIN_DIR>` the install script printed:
    ```bash
-   echo '{}' | <PYTHON> <PLUGIN_DIR>/statusline/render_segments.py --segment month
+   echo '{}' | <PYTHON> <PLUGIN_DIR>/statusline/render_segments.py --segment block
    ```
-   Should print `💰 $xx.xx mo` (or a dim fallback on a truly cold cache).
+   Should print the `5h … X to reset · $xx.xx` line (or a dim fallback on a truly cold cache).
 
 ---
 
@@ -232,6 +238,6 @@ To recover:
 bash ~/.claude/plugins/cache/<marketplace-name>/claude-tracker/<new-version>/statusline/install-ccstatusline.sh
 ```
 
-Copy the three printed commands, then in the ccstatusline TUI (`npx -y ccstatusline@latest` → Edit Lines → each Custom Command widget → edit cmd) paste the new `commandPath` for each of the ctx / block / month widgets. Save with Ctrl+S and restart Claude Code.
+Copy the three printed commands, then in the ccstatusline TUI (`npx -y ccstatusline@latest` → Edit Lines → each Custom Command widget → edit cmd) paste the new `commandPath` for each of the ctx / block / session widgets. Save with Ctrl+S and restart Claude Code.
 
 Local-clone installs don't have this problem — the path stays put across `git pull`s.

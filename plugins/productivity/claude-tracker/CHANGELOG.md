@@ -10,6 +10,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 - `transcript_summary()` helper in `tracker_core.py` — sums cost/usage for a single Claude Code session from its transcript file.
 - New `💬 Session` statusline segment showing current CLI session cost, driven by `transcript_path` from the statusline stdin payload.
 - README "Three 5h windows" terminology table clarifying Claude Code session vs Anthropic 5h pricing block vs subscription rate-limit window.
+- Default layout now recommends ccstatusline's built-in **`ThinkingEffort`** widget on line 2, showing the current thinking level (`low` / `medium` / `high` / `max`). Requires ccstatusline v2.3+.
 
 ### Changed
 - Statusline 5h segment now displays `X to reset` aligned to the clock hour (approximates `/usage` subscription reset) instead of `X left` from the exact first-message timestamp. Entry filtering for the cost calculation still uses the exact block start, so the displayed cost is unchanged.
