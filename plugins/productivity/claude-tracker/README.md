@@ -46,7 +46,7 @@ It verifies prerequisites (`python3`, `npx`), renders a live sample, and prints 
 Summary of what you'll do:
 1. Set `~/.claude/settings.json` → `statusLine.command` to `"npx -y ccstatusline@latest"` with `padding: 0`.
 2. Run `npx -y ccstatusline@latest` to launch the TUI.
-3. Build a 3-line layout with built-in widgets + three `CustomCommand` widgets invoking `render_segments.py --segment ctx|block|month`.
+3. Build a 3-line layout with built-in widgets + three `CustomCommand` widgets invoking `render_segments.py --segment ctx|block|session`.
 
 ### Legacy statusline (v0.1.x)
 
@@ -130,12 +130,25 @@ If you're comparing to an older tracker that ignored cache tokens, expect this n
 ```
 ~/plugin-playground  ⎇ main (+2,-1)
 Opus 4.7  ·  Session 12m  ·  Ctx ▓▓▓▓▓░░░░░ 52% (104K/1M)
-5h ▓▓▓░░░░░░░ 2h14m left · $71.98  ·  💰 $769.45 mo
+5h ▓▓▓▓▓▓▓▓░░ 29m to reset · $16.08  ·  💬 Session $0.42
 ```
 
 - **Context bar** fills per-model (Opus/Sonnet: 1M, Haiku: 200K, or `CLAUDE_CTX_LIMIT` env override). Green < 70%, yellow 70-89%, red ≥ 90%.
-- **5h bar** tracks time elapsed in the current Anthropic 5h billing block. Block cost shown next to remaining time.
-- **💰 month** is current-month-to-date. Subscription users see `$X.XX eq` suffix — a reminder this is API-equivalent, not your actual bill.
+- **5h bar** tracks the current Anthropic 5h billing block, **clock-hour aligned** so the "X to reset" time approximates the subscription reset shown in `/usage`. Block cost shown next to the countdown.
+- **💬 Session** is cost for your current Claude Code conversation (this `transcript_path`). Resets on `/clear` or a new session.
+- Subscription users see `$X.XX eq` suffix on both cost values — a reminder these are API-equivalent, not your actual bill.
+
+#### Three "5h" windows — what they each mean
+
+These get confused easily. All three are 5 hours long; only one of them is what the statusline shows:
+
+| Name | What it tracks | Where you see it |
+|---|---|---|
+| **Claude Code session** | One CLI conversation, identified by `transcript_path`. Resets on `/clear` or restart. | `💬 Session` on the statusline. |
+| **Anthropic 5h pricing block** | API-pricing bucket. Starts on your first message of the block. The statusline aligns the *display* to the clock hour to approximate the subscription reset. | `5h` bar on the statusline. |
+| **Subscription rate-limit window** | Server-side cap on Max/Pro/Team. Resets at a clock hour. | `/usage` only — not readable from the statusline. |
+
+The statusline's "X to reset" is an **approximation** of the subscription reset via clock-hour alignment — not a live fetch. For the authoritative reset time (and per-plan limits — Pro / Max / Team differ), check Anthropic's docs or `/usage`.
 
 ### v1 (legacy)
 

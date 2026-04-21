@@ -130,7 +130,7 @@ echo
 say "3. ${BOLD}Build a 3-line layout${RESET}:"
 say "   Line 1: CurrentWorkingDir · GitBranch · GitChanges"
 say "   Line 2: Model · SessionClock · ${BOLD}CustomCommand${RESET} (ctx segment)"
-say "   Line 3: ${BOLD}CustomCommand${RESET} (block segment) · ${BOLD}CustomCommand${RESET} (month segment)"
+say "   Line 3: ${BOLD}CustomCommand${RESET} (block segment) · ${BOLD}CustomCommand${RESET} (session segment)"
 echo
 say "4. ${BOLD}For each CustomCommand widget${RESET}, set:"
 say "   - ${BOLD}preserveColors${RESET}: true"
@@ -143,8 +143,8 @@ echo
 say "   ${DIM}block segment${RESET}"
 say "     $PYTHON_BIN $RENDERER --segment block"
 echo
-say "   ${DIM}month segment${RESET}"
-say "     $PYTHON_BIN $RENDERER --segment month"
+say "   ${DIM}session segment${RESET}"
+say "     $PYTHON_BIN $RENDERER --segment session"
 echo
 say "5. ${DIM}(Optional, Team plan)${RESET} add SessionUsage / WeeklyUsage widgets."
 echo

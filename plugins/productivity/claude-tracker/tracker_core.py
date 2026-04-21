@@ -282,6 +282,21 @@ def summarize(entries: list[Entry], pricing: Pricing) -> Summary:
     return s
 
 
+def transcript_summary(transcript_path: str, pricing: Pricing) -> Summary:
+    """Summary of cost/usage from a single Claude Code session's transcript."""
+    entries: list[Entry] = []
+    if transcript_path:
+        try:
+            with open(transcript_path, "r", errors="ignore") as f:
+                for line in f:
+                    e = parse_line(line)
+                    if e is not None:
+                        entries.append(e)
+        except OSError:
+            pass
+    return summarize(entries, pricing)
+
+
 def month_start(now: datetime | None = None) -> datetime:
     now = now or datetime.now(timezone.utc)
     return datetime(now.year, now.month, 1, tzinfo=timezone.utc)

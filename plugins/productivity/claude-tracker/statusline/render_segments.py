@@ -96,6 +96,19 @@ def _fmt_remaining(seconds: float) -> str:
     return "<1m left"
 
 
+def _fmt_time_to_reset(seconds: float) -> str:
+    s = max(0, int(seconds))
+    if s <= 0:
+        return "resetting now"
+    h, rem = divmod(s, 3600)
+    m = rem // 60
+    if h > 0:
+        return f"{h}h{m:02d}m to reset"
+    if m >= 1:
+        return f"{m}m to reset"
+    return "<1m to reset"
+
+
 def _eq_suffix(auth_mode: str) -> str:
     return " eq" if auth_mode == "subscription" else ""
 
@@ -186,10 +199,15 @@ def _refresh() -> None:
             block_entries = [e for e in entries_24h
                              if e.timestamp and e.timestamp >= start]
             s_block = tc.summarize(block_entries, pricing)
+            # Align displayed window to the clock hour — approximates the
+            # subscription rate-limit reset shown in /usage. Entry filtering
+            # above still uses the exact block start so the cost is accurate.
+            display_start = start.replace(minute=0, second=0, microsecond=0)
+            display_end = display_start + timedelta(hours=5)
             cache["block"] = {
                 "ts": _now_epoch(),
-                "start": start.isoformat(),
-                "end": end.isoformat(),
+                "start": display_start.isoformat(),
+                "end": display_end.isoformat(),
                 "cost": s_block.cost,
                 "auth_mode": auth,
             }
@@ -272,7 +290,17 @@ def segment_block(cache: dict) -> str:
     bar = render_bar(pct)
     cost = float(block.get("cost", 0.0))
     suffix = _eq_suffix(block.get("auth_mode", ""))
-    return f"5h {bar} {_fmt_remaining(remaining)} · ${cost:,.2f}{suffix}"
+    return f"5h {bar} {_fmt_time_to_reset(remaining)} · ${cost:,.2f}{suffix}"
+
+
+def segment_session(payload: dict) -> str:
+    transcript = payload.get("transcript_path", "")
+    if not transcript:
+        return f"\U0001f4ac {ANSI_DIM}Session $—.——{ANSI_RESET}"
+    pricing = tc.Pricing.load()
+    s = tc.transcript_summary(transcript, pricing)
+    suffix = _eq_suffix(tc.detect_auth_mode())
+    return f"\U0001f4ac Session ${s.cost:,.2f}{suffix}"
 
 
 def segment_month(cache: dict) -> str:
@@ -288,7 +316,7 @@ def segment_month(cache: dict) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--segment", choices=("ctx", "block", "month"))
+    ap.add_argument("--segment", choices=("ctx", "block", "session", "month"))
     ap.add_argument("--refresh", action="store_true",
                     help="Internal: run the background refresher synchronously.")
     args = ap.parse_args()
@@ -306,6 +334,11 @@ def main() -> int:
     if args.segment == "ctx":
         # Ctx is computed live per-render — no cache dependency.
         sys.stdout.write(segment_ctx(payload))
+        return 0
+
+    if args.segment == "session":
+        # Session cost is live per-render — reads only the current transcript.
+        sys.stdout.write(segment_session(payload))
         return 0
 
     cache = _read_cache()
