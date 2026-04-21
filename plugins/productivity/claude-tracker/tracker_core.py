@@ -314,10 +314,15 @@ def block_window(
 ) -> tuple[datetime, datetime] | None:
     """Anthropic-style 5h billing block detection.
 
-    A new block starts on any entry >= `hours` after the previous entry.
+    A new block starts on any entry >= `hours` after the previous entry
+    (idle reset). During continuous use with no idle gap, the block also
+    rolls forward in fixed `hours`-length increments whenever a newer
+    entry — or `now` itself — lands past the current interval, matching
+    Anthropic's billing rollover which fires every `hours` regardless of
+    activity. The `now` roll keeps the bar honest during silent minutes
+    between a rollover and the next message.
+
     Returns (start, end) of the most recent block, or None if no entries.
-    Caller can compare `now` against `end` to decide if the block is live
-    or already closed.
     """
     ts_entries = [e for e in entries if e.timestamp is not None]
     if not ts_entries:
@@ -329,7 +334,13 @@ def block_window(
     for e in ts_entries[1:]:
         if e.timestamp - prev >= gap:
             block_start = e.timestamp
+        else:
+            while e.timestamp - block_start >= gap:
+                block_start = block_start + gap
         prev = e.timestamp
+    if now is not None:
+        while now - block_start >= gap:
+            block_start = block_start + gap
     return block_start, block_start + gap
 
 
