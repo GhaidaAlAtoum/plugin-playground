@@ -26,7 +26,6 @@ Copy this block into `~/.claude/CLAUDE.md` and fill in your values:
 | `obsidian` | No | `false` | Set to `true` to enable Obsidian-optimised output: callouts, `[[wikilinks]]`, and richer frontmatter (`created`, `type`) across all writing skills. Run `/obsidian-setup` once after enabling. |
 | `obsidian_tasks` | No | `false` | Set to `true` to add Tasks-plugin emoji syntax (`📅 ⏫ 🔼`) inside task files. Requires the **Tasks** community plugin in Obsidian. Only meaningful when `obsidian: true`. |
 | `auto_start_suggestion` | No | `true` | Controls the `SessionStart` hook nudge. When a Claude Code session opens inside a daily-notes vault, the hook injects a one-line reminder to run `/start` (and a summary of open tasks + Scratch Pad state). Set to `false` to silence the nudge — the hook exits silently and no context is injected. The companion `Stop` hook (one nudge per session to run `/wrap-up` after 30+ min of active work) is always on; end a session fresh to reset its per-session flag. |
-| `statusline_mode` | No | `quiet` *(when wired)* | Controls the daily-notes Claude Code status line. Values: `quiet` (at-a-glance reassurance — only surfaces overdue / dirty-scratch when present), `focus` (opt-in "ADHD mode" — always shows overdue + due-today counts, even at zero, for persistent visibility), `off` (script runs but prints nothing). Only meaningful after the statusline is wired into `~/.claude/settings.json` — run `/init` to opt in, or see `statusline/README.md` for manual install. |
 
 ## What `role` changes
 
@@ -84,16 +83,6 @@ Without `obsidian: true`, all output uses plain markdown — no callouts, no wik
 - **`/reminders`** — fires native macOS notifications via `osascript` for overdue and due-today tasks (one each), plus grouped notifications for due-soon and stale in-progress items.
 
 Without `macos_notifications: true`, `/reminders` still shows the full summary in chat — notifications are simply not sent.
-
-## What `statusline_mode` unlocks
-
-Opt-in via `/init` (offers to wire the statusline + writes this field), or manually — see `statusline/README.md`. The script is fully local: reads `Scratch Pad.md` + `Tasks/` only, no network calls, no MCP dependencies.
-
-- **`statusline_mode: quiet` *(default when wired)*** — at-a-glance reassurance. The bar shows `📓` in a clean vault. Surfaces `🔴N` only if there are overdue tasks and `📝` only if Scratch Pad has unflushed content. Designed to fade into the background when things are fine.
-- **`statusline_mode: focus` *("ADHD mode")*** — persistent visibility, even at zero. Always shows `🔴N 🟠N` (overdue + due today). Adds `⏸N` when any task is stale in-progress, and `📝` when Scratch Pad is dirty. Chosen for users where "out of sight, out of mind" leads to missed work.
-- **`statusline_mode: off`** — script runs but prints nothing. The bar blanks. Useful for temporarily silencing without unwinding the `settings.json` wiring.
-
-Outside a vault (cwd missing `Scratch Pad.md` or `Tasks/`), the script always prints nothing — your status bar stays unaffected in unrelated projects.
 
 ## Session hooks (always on)
 

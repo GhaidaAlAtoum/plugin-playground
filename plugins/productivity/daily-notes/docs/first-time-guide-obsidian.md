@@ -55,7 +55,6 @@ Hit enter to accept defaults where you're unsure. Key answers for the Obsidian p
 | macOS notifications? | **y** if on a Mac |
 | **Obsidian vault?** | **y** ← this guide |
 | **Obsidian Tasks plugin installed?** | **n** for now — we'll install it in Step 4. Re-run `/init` or edit your profile after. |
-| Enable statusline? | **y** (shows overdue + scratch-pad signals in Claude Code's bar) |
 
 Your profile in `~/.claude/CLAUDE.md` will end up with:
 

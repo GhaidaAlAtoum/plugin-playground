@@ -90,7 +90,6 @@ Skills read these fields at runtime via the "Daily Notes Plugin Profile" block i
 | `contacts_folder` | string | `People` | `/sync`, `/prep` |
 | `recurring_meetings_label` | string | `1:1` | `/sync` |
 | `macos_notifications` | bool | false | `/reminders` |
-| `statusline_mode` | enum `quiet \| focus \| off` | `quiet` *(when wired)* | `statusline/daily-notes-status.sh` |
 
 ### Session hooks
 
@@ -103,20 +102,6 @@ Declared in `hooks/hooks.json` and implemented as POSIX shell scripts in `hooks/
 `SessionStart` respects the `auto_start_suggestion` profile field (default `true`; set `false` to silence). `Stop` is always-on but self-limits to one nudge per session via the flag, which SessionStart clears on each startup/resume/clear.
 
 When adding new hooks: follow the same gate-first pattern (vault signature → profile opt-out → work), keep runtime under the `timeout` budget declared in `hooks.json`, and document the new hook in `CLAUDE.md` under "Session hooks".
-
-### Statusline (`statusline/daily-notes-status.sh`)
-
-The statusline runs after every assistant message (Claude Code debounces at 300ms). It reads session JSON from stdin, prints one line to stdout, and exits 0. A user opts in by wiring the script path into `~/.claude/settings.json` under `statusLine.command` — `/init` offers to do this automatically; `/doctor` verifies it.
-
-Non-negotiable rules for any future change to the statusline:
-
-1. **Local only.** No network, no MCP calls, no shelling out to API clients. The bar fires on every user prompt; an API call here will rate-limit the user's account and stall the UI. Any external-API-backed signal would require a disk cache (mtime-invalidatable) and a refresh daemon — revisit only with that infrastructure in place.
-2. **Cache-or-die.** Every signal must be derivable from local files whose mtimes change when the signal should change. Cache in `.claude/statusline-cache.<session_id>.json`. Any signal that can't be invalidated via mtime belongs out of scope.
-3. **Stable icon count within a mode.** Emoji widths vary across terminals (iTerm2, Terminal.app, VS Code, Warp). Adding and removing icons causes visible jitter. Quiet mode's "show only when non-zero" pattern is the quiet contract; focus mode's "always show `🔴N 🟠N`" is the focus contract. Don't blur them.
-4. **Empty stdout = blank bar.** Every error path exits 0 with no output. Never print stack traces, warnings, or "broken" strings to stdout — the bar is user-visible. Errors surface through `/doctor` instead.
-5. **Fail silent on every edge.** If `~/.claude/CLAUDE.md` is unreadable, the profile is malformed, stat is unavailable, or `Tasks/` contains a corrupt task file — print `📓` and move on. The Claude Code UI must never see a non-zero exit from this script.
-
-Adding a new signal? Add it to `statusline/README.md` legend + mode tables, update the `daily-notes-status.sh` task-scan loop, and add an invalidation source to the mtime set. The `/doctor` check 7 dry-run should exercise it.
 
 ### Error messages — standard pattern
 

@@ -55,8 +55,6 @@ When it asks:
 | Track per-person contacts? | **y** if you have recurring 1:1s with teammates, **n** otherwise |
 | macOS notifications? | **y** if you want `/reminders` to pop native alerts |
 | Obsidian vault? | **n** ← this guide |
-| Enable statusline? | **y** (shows overdue + scratch-pad signals in Claude Code's bar) |
-| Statusline mode | `quiet` (default) or `focus` (always-on counters) |
 
 When it finishes, it will print a one-line "next step" and `cd` instructions.
 
@@ -214,7 +212,7 @@ Weekly        /task archive      → sweep done tasks
 - **Don't manually sort the Scratch Pad.** That's `/sync`'s job. The whole point is that you dump and it sorts.
 - **Don't edit `Daily Notes/` by hand.** They're the output of `/sync` and `/wrap-up`. If you want to add context, put it in the Scratch Pad first.
 - **Don't skip `/sync`.** If the Scratch Pad grows past a screen, `/sync` has more to sift through and the plan gets harder to eyeball. Aim for once a day.
-- **If `/start` feels noisy**, adjust `statusline_mode` or turn off `auto_start_suggestion` in your profile (`~/.claude/CLAUDE.md`).
+- **If `/start` feels noisy**, turn off `auto_start_suggestion` in your profile (`~/.claude/CLAUDE.md`).
 
 ---
 

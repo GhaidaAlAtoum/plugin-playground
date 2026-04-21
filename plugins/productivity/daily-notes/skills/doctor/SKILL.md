@@ -53,22 +53,6 @@ Attempt a benign `osascript -e 'return "ok"'` call. If it errors (permission den
 ### 6. Plugin pairing
 Check whether `notes-integrations` is also installed in the current Claude Code session (look for its skill names in the tool list: `recap`, `jira-pull`, etc.). Report: installed / not installed. This is informational — `daily-notes` works alone.
 
-### 7. Statusline wiring (informational — absent wiring is not an error)
-The daily-notes statusline is opt-in. Check three things:
-
-1. **`~/.claude/settings.json`** — does it contain a top-level `statusLine.command` field, and does that command path end with `daily-notes-status.sh` inside a `statusline/` directory? If no → report `✗ statusline not wired` with the fix: `Run /init to opt in, or manually add a "statusLine" block to ~/.claude/settings.json (see statusline/README.md).`
-2. **Script exists and is executable** — if `settings.json` points to a path but the file does not exist or is not executable, report `⚠ statusline script path in settings.json points to <path> which is missing or not executable`. Fix: reinstall the plugin, or run `chmod +x <path>`.
-3. **Profile mode** — read the Daily Notes Plugin Profile. Is `statusline_mode` set to one of `quiet`, `focus`, `off`? If missing but wiring is present, report: `Advisory: statusline wired but statusline_mode not set — defaulting to quiet. Add "- statusline_mode: quiet" (or "focus"/"off") to your profile to make this explicit.`
-4. **Dry-run smoke test** — pipe a minimal fake session JSON to the script inside the current vault:
-   ```bash
-   echo '{"session_id":"doctor-dryrun"}' | <script-path>
-   ```
-   Check exit code 0 and that stdout is under 120 chars. Report one of:
-     - `✓ statusline wired (<mode> mode) — dry-run produced: <line>`
-     - `⚠ statusline dry-run exited non-zero` — include stderr (first 3 lines). Fix: `Re-run with "bash -x <script-path> < /dev/null" to trace, or open an issue.`
-
-Dry-run must not modify any file outside `.claude/statusline-cache.*.json`. The cache write is acceptable — it's scoped to the vault's housekeeping directory.
-
 ## Report format
 
 Emit one of these shapes:
@@ -81,7 +65,6 @@ Vault:        /Users/.../notes
 Profile:      ok (display_name: Alice, role: manager, track_contacts: true, …)
 Memory:       present
 macOS events: ok
-Statusline:   ✓ wired (quiet mode) — dry-run: 📓
 
 Integrations
   Atlassian       ✓ available
