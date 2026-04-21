@@ -1,6 +1,6 @@
 # plugin-playground
 
-A Claude Code plugin marketplace focused on personal productivity — a lightweight, file-based note-taking and task-tracking system that lives in your project folder.
+A Claude Code plugin marketplace focused on personal productivity — note-taking, task-tracking, and usage observability for your Claude Code workflow.
 
 ## Plugins
 
@@ -8,8 +8,9 @@ A Claude Code plugin marketplace focused on personal productivity — a lightwei
 |---|---|
 | [**daily-notes**](plugins/productivity/daily-notes/README.md) | Scratch pad → `/sync` → tasks, talking points, meetings, and a daily log. Works out of the box. Optional Obsidian and per-person contact tracking. |
 | [**notes-integrations**](plugins/productivity/notes-integrations/README.md) | MCP-powered enrichment layer on top of `daily-notes`: pull Jira tickets into tasks, surface Unblocked context in meeting notes, integrate with Google Calendar, generate time-window recaps. Requires `daily-notes`. |
+| [**claude-tracker**](plugins/productivity/claude-tracker/README.md) | Track Claude Code token usage and API-equivalent cost — `/cost` skill, statusline, optional macOS menu bar. Plan-aware (API key vs Pro/Max/Team), accounts for cache tokens. |
 
-`daily-notes` is standalone. `notes-integrations` layers on top of it and depends on it — install `daily-notes` first if you plan to use both.
+`daily-notes` is standalone. `notes-integrations` layers on top of it and depends on it — install `daily-notes` first if you plan to use both. `claude-tracker` is standalone and independent of the notes plugins.
 
 ## Install
 

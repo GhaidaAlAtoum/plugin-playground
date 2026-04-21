@@ -1,0 +1,13 @@
+{
+  "name": "claude-tracker",
+  "description": "Track Claude Code token usage, cost (API equivalent), cache tokens, and rolling-window progress. Works for API-key, Pro, Max, and Team plans with plan-aware display. Optional macOS menu bar app.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ghaida Atoum",
+    "email": "ghaida.alatoum2@gmail.com"
+  },
+  "homepage": "https://github.com/ghaidaatoum/plugin-playground/tree/main/plugins/productivity/claude-tracker",
+  "repository": "https://github.com/ghaidaatoum/plugin-playground",
+  "license": "MIT",
+  "keywords": ["observability", "usage", "cost", "tokens", "statusline", "claude-code"]
+}

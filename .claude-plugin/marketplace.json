@@ -11,6 +11,10 @@
     {
       "name": "notes-integrations",
       "source": "./plugins/productivity/notes-integrations"
+    },
+    {
+      "name": "claude-tracker",
+      "source": "./plugins/productivity/claude-tracker"
     }
   ]
 }
