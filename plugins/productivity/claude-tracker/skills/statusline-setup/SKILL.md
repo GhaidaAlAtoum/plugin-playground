@@ -2,7 +2,10 @@
 description: Set up the claude-tracker v2 statusline (ccstatusline + colored context/5h bars). Use when the user says "set up statusline", "install statusline", "configure tracker bar", "new statusline", "statusline setup", or asks how to start using the tracker's statusline after installing/updating the plugin.
 ---
 
-Walk the user through enabling the v2 statusline. The heavy lifting is done by `install-ccstatusline.sh`, which detects prerequisites, resolves a fast Python path (bypassing pyenv shims), renders a live sample, and prints the exact TUI steps.
+Walk the user through enabling the v2 statusline. The heavy lifting is done by `install-ccstatusline.sh`, which detects prerequisites, resolves a fast Python path (bypassing pyenv shims), renders a live sample, and — if ccstatusline already has claude-tracker widgets — refreshes their `commandPath` strings in place. Two flows:
+
+- **First-time setup**: no existing config → script prints the commands and TUI steps; user builds the 3-line layout once.
+- **Refresh after plugin/Python upgrade**: existing widgets are auto-patched in `~/.config/ccstatusline/settings.json` (backup written to `.bak`); no TUI re-paste needed, just restart Claude Code.
 
 ## Steps
 
@@ -10,7 +13,7 @@ Walk the user through enabling the v2 statusline. The heavy lifting is done by `
    ```bash
    bash "${CLAUDE_PLUGIN_ROOT}/statusline/install-ccstatusline.sh"
    ```
-   Show the full output to the user — it contains the live Ctx-bar sample and the commands they'll paste into the ccstatusline TUI.
+   Show the full output to the user. If it ends with "You're done" they're on the refresh path — skip to step 6. Otherwise it printed first-time setup instructions (the commands to paste into the TUI); continue with steps 2–5.
 
 2. Check the user's current `~/.claude/settings.json` to see whether `statusLine.command` still points at the v1 `claude-cost.sh` or is already updated. Read the file and report which state they're in.
 
@@ -34,6 +37,7 @@ Walk the user through enabling the v2 statusline. The heavy lifting is done by `
 
 ## Notes
 
-- Don't edit `~/.config/ccstatusline/settings.json` directly. The TUI owns that file; manual edits get overwritten.
+- The script only rewrites the `commandPath` of Custom Command widgets whose path already contains `render_segments.py`. Every other widget, every other field, and the rest of `~/.config/ccstatusline/settings.json` are left untouched. A `.bak` is written before any change.
+- Don't make ad-hoc manual edits to `~/.config/ccstatusline/settings.json` — re-opening the TUI will overwrite them. If the auto-patch doesn't cover something, change it in the TUI.
 - If the setup script fails a prerequisite check (missing `npx` or `python3`), help the user install Node/Python rather than trying to work around it.
 - The old v1 `claude-cost.sh` script stays in place through v0.2.x for migration safety — no rush to remove it from the other machine.

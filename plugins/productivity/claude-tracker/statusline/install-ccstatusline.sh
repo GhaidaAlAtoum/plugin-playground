@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Guided setup for the v2 statusline (ccstatusline + claude-tracker renderer).
 #
-# This script is advisory: it doesn't touch ~/.claude/settings.json or
-# ~/.config/ccstatusline/settings.json directly. It checks prerequisites
-# and prints the exact commands and widget config to paste into the
-# ccstatusline TUI.
+# Behavior:
+#   - First-time users: advisory. Checks prerequisites, prints the three
+#     commandPath strings to paste into the ccstatusline TUI.
+#   - Upgrade/refresh: if ~/.config/ccstatusline/settings.json already has
+#     claude-tracker custom-command widgets, rewrites their commandPath
+#     in-place (backing up to .bak first) so users don't have to re-paste
+#     after a plugin version bump. Leaves ~/.claude/settings.json alone.
 
 set -u
 
@@ -108,7 +111,97 @@ else
   say "${YELLOW}!${RESET} no transcripts under ~/.claude/projects/*/*.jsonl — skipping live sample"
 fi
 
-# --- 3. setup instructions ----------------------------------------------
+# --- 3. auto-patch existing ccstatusline widgets ------------------------
+#
+# If the user already built the 3-line layout in a previous session, their
+# Custom Command widgets have stale commandPaths after a plugin upgrade
+# (marketplace installs include the version segment) or a Python upgrade.
+# Rewrite just those widgets' commandPath — preserve every other field and
+# every other widget. Back up to .bak before writing.
+
+CCSTATUS_CONFIG="$HOME/.config/ccstatusline/settings.json"
+widgets_patched=0
+widgets_found=0
+if [[ -f "$CCSTATUS_CONFIG" ]]; then
+  echo
+  say "${BOLD}Checking existing ccstatusline config${RESET} ${DIM}($CCSTATUS_CONFIG)${RESET}"
+  patch_output=$("$PYTHON_BIN" - "$CCSTATUS_CONFIG" "$PYTHON_BIN" "$RENDERER" <<'PY'
+import json, os, re, shutil, sys
+
+config_path, python_bin, renderer = sys.argv[1], sys.argv[2], sys.argv[3]
+try:
+    with open(config_path) as f:
+        data = json.load(f)
+except Exception as e:
+    print(f"ERR: could not parse {config_path}: {e}", file=sys.stderr)
+    sys.exit(2)
+
+found = 0
+updated = 0
+for line in data.get("lines", []):
+    if not isinstance(line, list):
+        continue
+    for widget in line:
+        if not isinstance(widget, dict):
+            continue
+        if widget.get("type") != "custom-command":
+            continue
+        cmd = widget.get("commandPath", "")
+        if "render_segments.py" not in cmd:
+            continue
+        found += 1
+        # Preserve everything after render_segments.py (--segment X and any extras).
+        m = re.search(r"render_segments\.py(\s+.*)?$", cmd)
+        trailing = (m.group(1) or "") if m else ""
+        new_cmd = f"{python_bin} {renderer}{trailing}"
+        if cmd != new_cmd:
+            updated += 1
+            widget["commandPath"] = new_cmd
+
+if updated:
+    shutil.copy2(config_path, config_path + ".bak")
+    tmp = config_path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    os.replace(tmp, config_path)
+
+# Output: "<found> <updated>"
+print(f"{found} {updated}")
+PY
+)
+  patch_rc=$?
+  if [[ $patch_rc -ne 0 ]]; then
+    say "${YELLOW}!${RESET} could not auto-patch config — falling back to manual instructions below"
+  else
+    widgets_found="${patch_output% *}"
+    widgets_patched="${patch_output#* }"
+    widgets_found="${widgets_found:-0}"
+    widgets_patched="${widgets_patched:-0}"
+    if [[ "$widgets_patched" -gt 0 ]]; then
+      say "${GREEN}✓${RESET} Refreshed ${BOLD}${widgets_patched}${RESET} claude-tracker widget(s) in place."
+      say "  ${DIM}Backup: ${CCSTATUS_CONFIG}.bak${RESET}"
+    elif [[ "$widgets_found" -gt 0 ]]; then
+      say "${GREEN}✓${RESET} Found ${widgets_found} claude-tracker widget(s), all already up-to-date."
+    else
+      say "${DIM}No claude-tracker widgets found — showing first-time setup steps.${RESET}"
+    fi
+  fi
+fi
+
+# --- 4. setup instructions ----------------------------------------------
+
+if [[ "$widgets_patched" -gt 0 || "$widgets_found" -gt 0 ]]; then
+  echo
+  if [[ "$widgets_patched" -gt 0 ]]; then
+    say "${BOLD}You're done.${RESET} Restart Claude Code to pick up the refreshed statusline."
+  else
+    say "${BOLD}Nothing to do.${RESET} Your ccstatusline config already points at the current install."
+  fi
+  say "  ${DIM}(No TUI re-paste needed. If the statusline still shows dim dashes after restart,${RESET}"
+  say "  ${DIM} run ${BOLD}npx -y ccstatusline@latest${RESET}${DIM} and verify each Custom Command widget.)${RESET}"
+  exit 0
+fi
 
 echo
 say "${BOLD}Next steps${RESET}"

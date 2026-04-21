@@ -19,7 +19,7 @@ The install script prints the right absolute path regardless of how you installe
 | **Marketplace** (`/plugin install claude-tracker@<marketplace>`) | `~/.claude/plugins/cache/<marketplace-name>/claude-tracker/<version>/` |
 | **Local git clone** | `<wherever-you-cloned>/plugins/productivity/claude-tracker/` |
 
-> ⚠️ **Marketplace paths include the plugin version** (e.g. `.../claude-tracker/0.2.0/...`). That means every time you upgrade the plugin, the absolute path changes — the old `<version>` directory is swapped for the new one, and the `commandPath` strings in your ccstatusline config silently break. **After any upgrade, rerun `install-ccstatusline.sh` and paste the fresh strings into each Custom Command widget.** (Local clones don't have this problem — the path stays put.)
+> ⚠️ **Marketplace paths include the plugin version** (e.g. `.../claude-tracker/0.2.0/...`). Every time you upgrade the plugin, the absolute path changes — the old `<version>` directory is swapped for the new one. Rerunning `install-ccstatusline.sh` from the new install dir detects this, rewrites each Custom Command widget's `commandPath` in `~/.config/ccstatusline/settings.json` in place (backup written to `.bak`), and exits. Just restart Claude Code — no TUI re-paste needed. (Local clones don't have this problem — the path stays put.)
 
 Everywhere this guide shows `<PYTHON>` or `<PLUGIN_DIR>`, substitute the strings the install script printed for you.
 
@@ -232,12 +232,14 @@ Just re-run `npx -y ccstatusline@latest`. Your saved config is picked up automat
 
 Marketplace installs live at a versioned path (`…/claude-tracker/<version>/…`), so **every plugin upgrade breaks the old `commandPath` strings** saved in `~/.config/ccstatusline/settings.json`. The statusline will fall back to dim dashes until you refresh.
 
-To recover:
+To recover, rerun the install script from the new install dir:
 
 ```bash
 bash ~/.claude/plugins/cache/<marketplace-name>/claude-tracker/<new-version>/statusline/install-ccstatusline.sh
 ```
 
-Copy the three printed commands, then in the ccstatusline TUI (`npx -y ccstatusline@latest` → Edit Lines → each Custom Command widget → edit cmd) paste the new `commandPath` for each of the ctx / block / session widgets. Save with Ctrl+S and restart Claude Code.
+The script detects the existing claude-tracker widgets and rewrites each `commandPath` in place (preserving `--segment`, `preserveColors`, `timeout`, `maxWidth`, and every non-claude-tracker widget). A backup is written to `~/.config/ccstatusline/settings.json.bak`. Restart Claude Code to pick up the new paths — no TUI re-paste, no manual copy/paste.
 
-Local-clone installs don't have this problem — the path stays put across `git pull`s.
+If your widgets don't have a `render_segments.py` path yet (first-time setup) the script falls back to printing the manual TUI steps.
+
+Local-clone installs don't have this problem — the path stays put across `git pull`s, so the script typically has nothing to patch.
