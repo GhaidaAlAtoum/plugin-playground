@@ -164,7 +164,9 @@ For every Custom Command widget you added in steps 5 and 6, open its widget opti
 - `~/.claude/plugins/cache/<marketplace>/claude-tracker/<version>/statusline/render_segments.py …` (marketplace install — note the version segment)
 - `/path/to/your/clone/plugins/productivity/claude-tracker/statusline/render_segments.py …` (local clone)
 
-> ⚠️ **Don't use plain `python3 …`** — on a machine with pyenv, the shim adds ~1s per invocation and will exceed the timeout. Always use the absolute interpreter path, which the install script printed for you.
+> ⚠️ **Don't use plain `python3 …` and don't use `~/.pyenv/shims/python3`** — the pyenv shim adds ~1 s per invocation and will exceed ccstatusline's 1000 ms timeout, so every render will dim-fallback. Use the absolute interpreter path (the one the install script prints; `install-ccstatusline.sh` refuses to emit a shim and will tell you how to find the real path if it can't resolve one).
+>
+> If your current `commandPath` already contains `/shims/` (e.g. you configured this before the install script hardened against it), run `pyenv which python3` in a terminal — the result is the real interpreter you want to paste.
 
 ---
 

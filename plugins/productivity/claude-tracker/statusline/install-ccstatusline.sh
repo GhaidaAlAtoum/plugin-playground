@@ -39,14 +39,39 @@ resolve_python() {
   command -v python3 2>/dev/null || echo ""
 }
 
+# Ask the interpreter itself for its canonical path. sys.executable always
+# points to the real binary, even if we invoked it through a pyenv shim —
+# so this dereferences any shim in one step. We do this because shims add
+# ~1s per invocation and will exceed ccstatusline's 1000ms timeout.
+dereference_shim() {
+  local candidate="$1"
+  [[ -z "$candidate" ]] && return
+  local real
+  real=$("$candidate" -c 'import sys; print(sys.executable)' 2>/dev/null)
+  if [[ -n "$real" && -x "$real" ]]; then
+    echo "$real"
+  else
+    echo "$candidate"
+  fi
+}
+
 PYTHON_BIN="$(resolve_python)"
 if [[ -z "$PYTHON_BIN" ]]; then
   say "${RED}✗${RESET} python3 not found"
   missing=1
 else
-  say "${GREEN}✓${RESET} python3: $PYTHON_BIN"
   if [[ "$PYTHON_BIN" == */shims/* ]]; then
-    say "  ${YELLOW}!${RESET} this is a pyenv shim — ccstatusline commands will use it but expect ~1s latency per render"
+    original="$PYTHON_BIN"
+    PYTHON_BIN="$(dereference_shim "$original")"
+    if [[ "$PYTHON_BIN" == */shims/* || -z "$PYTHON_BIN" ]]; then
+      say "${RED}✗${RESET} python3 resolved to a pyenv shim ($original) and dereference failed"
+      say "  Fix: run ${BOLD}pyenv which python3${RESET} yourself, confirm the result is not under /shims/, and pass that path manually"
+      missing=1
+    else
+      say "${GREEN}✓${RESET} python3: $PYTHON_BIN ${DIM}(dereferenced from shim $original)${RESET}"
+    fi
+  else
+    say "${GREEN}✓${RESET} python3: $PYTHON_BIN"
   fi
 fi
 
