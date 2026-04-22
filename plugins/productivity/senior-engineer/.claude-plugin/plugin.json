@@ -1,0 +1,13 @@
+{
+  "name": "senior-engineer",
+  "description": "Senior-engineer orchestrator that dispatches junior sub-agents in parallel git worktrees, one per ticket (Jira or free-form). The senior reviews each worktree, presents a consolidated summary, and only opens a GitHub PR after your explicit approval.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ghaida Atoum",
+    "email": "ghaida.alatoum2@gmail.com"
+  },
+  "homepage": "https://github.com/ghaidaatoum/plugin-playground/tree/main/plugins/productivity/senior-engineer",
+  "repository": "https://github.com/ghaidaatoum/plugin-playground",
+  "license": "MIT",
+  "keywords": ["agents", "worktree", "jira", "parallel", "code-review", "orchestration", "claude-code"]
+}
