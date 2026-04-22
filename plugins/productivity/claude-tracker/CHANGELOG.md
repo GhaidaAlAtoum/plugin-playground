@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+### Changed
+- **Statusline now prefers Claude Code's own stdin metrics over locally-derived numbers.** The 5h bar reads `rate_limits.five_hour.used_percentage` and `resets_at` directly (authoritative Anthropic numbers), so on Team — and any plan where Claude Code populates these fields — the bar tracks *actual quota consumed* instead of wall-clock time elapsed in the window. Context bar prefers `context_window.used_percentage` + `context_window_size`; session cost prefers `cost.total_cost_usd`. Each segment falls back to the prior jsonl-scan / transcript-tail path when stdin doesn't carry the field, so older Claude Code versions and plans without rate-limit exposure keep working.
+
+### Fixed
+- 5h bar no longer sits at mid-fill when you've hit an Anthropic rate limit. Previously the bar was a pure clock-time-elapsed meter and had no relationship to how much quota you'd burned; it now reflects Anthropic's server-reported `used_percentage` when the field is available on stdin.
+- Morning-after-reset bar no longer serves a stale half-filled state when the laptop slept across a 5h rollover. On the stdin-driven path, each render reads a fresh `used_percentage`; on the fallback path, `segment_block` now rejects a cached block whose `end` is already in the past and renders a dim placeholder until the background refresher repopulates the cache.
+- Stuck `resetting now` on the fallback path is gone for the same reason — a cache whose window has rolled over is treated as missing, not as a block with negative remaining.
+
+### Added
+- `TRACKER_DUMP_STDIN=1` env gate in `render_segments.py` writes the next captured stdin payload to `~/.claude/.cache/tracker-stdin-sample-<segment>.json`. Temporary verification hook; will be removed once the stdin-sourced path is confirmed working across plan tiers.
+
 ## [0.3.0] — 2026-04-21
 
 ### Added

@@ -219,8 +219,8 @@ If it doesn't, sanity-check in order:
 
 ## Optional additions
 
-- **Team plan quota**: add `SessionUsage` and `WeeklyUsage` widgets (only work on Team plan).
-- **Custom context limit**: set the env var `CLAUDE_CTX_LIMIT=200000` (or any integer) in your shell profile to override the per-model default.
+- **Team plan — 7-day quota**: add ccstatusline's built-in `WeeklyUsage` widget in the TUI for a 7-day rate-limit readout alongside the tracker's 5h bar. (The 5h bar already reads `rate_limits.five_hour` straight from Claude Code's statusline stdin on Team, so no need to also add `SessionUsage`.)
+- **Custom context limit**: set the env var `CLAUDE_CTX_LIMIT=200000` (or any integer) in your shell profile to override the per-model default. Only takes effect on the fallback path — when Claude Code's stdin carries `context_window.context_window_size`, that wins.
 
 ---
 

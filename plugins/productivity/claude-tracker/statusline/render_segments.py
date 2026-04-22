@@ -256,7 +256,30 @@ def _stringify_model(raw) -> str:
     return ""
 
 
+def _ctx_from_stdin(payload: dict) -> tuple[float, int, int] | None:
+    """(pct, tokens_used, limit) from Claude Code's pre-computed fields, or
+    None if stdin didn't carry them."""
+    cw = payload.get("context_window")
+    if not isinstance(cw, dict):
+        return None
+    used_pct = cw.get("used_percentage")
+    size = cw.get("context_window_size")
+    if not isinstance(used_pct, (int, float)) or not isinstance(size, int) or size <= 0:
+        return None
+    pct = max(0.0, min(1.0, used_pct / 100.0))
+    tokens = int(round(pct * size))
+    return pct, tokens, size
+
+
 def segment_ctx(payload: dict) -> str:
+    stdin_ctx = _ctx_from_stdin(payload)
+    if stdin_ctx is not None:
+        pct, tokens, limit = stdin_ctx
+        bar = render_bar(pct)
+        return (
+            f"Ctx {bar} {pct * 100:.0f}% "
+            f"({_fmt_tokens(tokens)}/{_fmt_limit(limit)})"
+        )
     transcript = payload.get("transcript_path", "")
     stdin_model = _stringify_model(payload.get("model"))
     result = tc.last_assistant_context_tokens(transcript) if transcript else None
@@ -274,8 +297,45 @@ def segment_ctx(payload: dict) -> str:
     )
 
 
-def segment_block(cache: dict) -> str:
-    block = cache.get("block")
+def _five_hour_from_stdin(payload: dict) -> tuple[float, datetime] | None:
+    """(used_fraction 0..1, resets_at_utc) from Claude Code's rate_limits,
+    or None if stdin didn't carry them. Anthropic surfaces these on Team
+    (and increasingly Pro/Max); absent on plans/versions that don't."""
+    rl = payload.get("rate_limits")
+    if not isinstance(rl, dict):
+        return None
+    five = rl.get("five_hour")
+    if not isinstance(five, dict):
+        return None
+    used_pct = five.get("used_percentage")
+    resets_at = five.get("resets_at")
+    if not isinstance(used_pct, (int, float)) or not isinstance(resets_at, (int, float)):
+        return None
+    pct = max(0.0, min(1.0, used_pct / 100.0))
+    try:
+        end = datetime.fromtimestamp(float(resets_at), tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return None
+    return pct, end
+
+
+def segment_block(cache: dict, payload: dict | None = None) -> str:
+    now = datetime.now(timezone.utc)
+    block = cache.get("block") if isinstance(cache, dict) else None
+    cost = float(block.get("cost", 0.0)) if isinstance(block, dict) else 0.0
+    suffix = _eq_suffix(block.get("auth_mode", "") if isinstance(block, dict) else "")
+
+    # Preferred path: Anthropic's authoritative rate-limit numbers from stdin.
+    stdin_rl = _five_hour_from_stdin(payload or {})
+    if stdin_rl is not None:
+        pct, end = stdin_rl
+        remaining = (end - now).total_seconds()
+        bar = render_bar(pct)
+        return f"5h {bar} {_fmt_time_to_reset(remaining, end)} · ${cost:,.2f}{suffix}"
+
+    # Fallback: time-elapsed from cached block window. Reject cached blocks
+    # whose end is already in the past — that's the stuck "resetting now"
+    # failure mode (stale cache after laptop sleep across rollover).
     if not isinstance(block, dict) or "start" not in block:
         return (
             f"5h {render_bar_dim()} "
@@ -287,24 +347,32 @@ def segment_block(cache: dict) -> str:
         end = datetime.fromisoformat(block["end"])
     except (TypeError, ValueError):
         return f"5h {render_bar_dim()}"
-    now = datetime.now(timezone.utc)
+    if now >= end:
+        return (
+            f"5h {render_bar_dim()} "
+            f"{ANSI_DIM}—:—{ANSI_RESET} "
+            f"· {ANSI_DIM}$—.——{ANSI_RESET}"
+        )
     total = (end - start).total_seconds()
     elapsed = (now - start).total_seconds()
     pct = elapsed / total if total > 0 else 1.0
     remaining = (end - now).total_seconds()
     bar = render_bar(pct)
-    cost = float(block.get("cost", 0.0))
-    suffix = _eq_suffix(block.get("auth_mode", ""))
     return f"5h {bar} {_fmt_time_to_reset(remaining, end)} · ${cost:,.2f}{suffix}"
 
 
 def segment_session(payload: dict) -> str:
+    suffix = _eq_suffix(tc.detect_auth_mode())
+    cost_obj = payload.get("cost")
+    if isinstance(cost_obj, dict):
+        total = cost_obj.get("total_cost_usd")
+        if isinstance(total, (int, float)):
+            return f"\U0001f4ac Session ${float(total):,.2f}{suffix}"
     transcript = payload.get("transcript_path", "")
     if not transcript:
         return f"\U0001f4ac {ANSI_DIM}Session $—.——{ANSI_RESET}"
     pricing = tc.Pricing.load()
     s = tc.transcript_summary(transcript, pricing)
-    suffix = _eq_suffix(tc.detect_auth_mode())
     return f"\U0001f4ac Session ${s.cost:,.2f}{suffix}"
 
 
@@ -336,6 +404,18 @@ def main() -> int:
 
     payload = _parse_stdin()
 
+    # Phase 0 verification hook: `TRACKER_DUMP_STDIN=1 claude` captures the
+    # raw payload to ~/.claude/.cache/tracker-stdin-sample-<segment>.json so
+    # we can confirm which Anthropic plans populate `rate_limits.*`. Intended
+    # to be deleted once the migration to stdin-sourced data is stable.
+    if os.environ.get("TRACKER_DUMP_STDIN"):
+        try:
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            out = CACHE_DIR / f"tracker-stdin-sample-{args.segment}.json"
+            out.write_text(json.dumps(payload, indent=2, sort_keys=True))
+        except OSError:
+            pass
+
     if args.segment == "ctx":
         # Ctx is computed live per-render — no cache dependency.
         sys.stdout.write(segment_ctx(payload))
@@ -349,7 +429,7 @@ def main() -> int:
     cache = _read_cache()
     _maybe_spawn_refresh(cache)
     if args.segment == "block":
-        sys.stdout.write(segment_block(cache))
+        sys.stdout.write(segment_block(cache, payload))
     else:
         sys.stdout.write(segment_month(cache))
     return 0

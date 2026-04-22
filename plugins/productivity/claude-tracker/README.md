@@ -169,7 +169,7 @@ Month cost on the left, last-5-hours cost on the right. Same `eq` suffix rule ap
 
 ## Limitations
 
-- **Tier (Pro / Max / Team) is not auto-detected.** Anthropic doesn't expose it locally. v2 statusline works on any plan; team-plan quota widgets (SessionUsage / WeeklyUsage) are opt-in via the ccstatusline TUI.
+- **Tier (Pro / Max / Team) is not auto-detected.** Anthropic doesn't expose it locally. The 5h bar reads `rate_limits.five_hour` from Claude Code's statusline stdin when present (Team and increasingly Pro/Max), so it reflects *actual quota consumed* on those plans. On plans/versions that don't populate the field, it falls back to a wall-clock time-elapsed meter against the detected 5h block. Team users wanting a 7-day readout can add ccstatusline's built-in `WeeklyUsage` widget in the TUI — see `statusline/SETUP-GUIDE.md`.
 - **v1 window is wall-clock "last 5 hours."** v2 detects Anthropic's actual 5h billing block by walking transcript timestamps.
 - **Per-user attribution on Team is not supported** — logs are per-machine. The tracker shows *your* usage only.
 - **OpenCode logs** are parsed if present at `~/.local/share/opencode/log/`, but model detection on OpenCode's format is approximate.
