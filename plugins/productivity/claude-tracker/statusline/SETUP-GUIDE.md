@@ -19,7 +19,7 @@ The install script prints the right absolute path regardless of how you installe
 | **Marketplace** (`/plugin install claude-tracker@<marketplace>`) | `~/.claude/plugins/cache/<marketplace-name>/claude-tracker/<version>/` |
 | **Local git clone** | `<wherever-you-cloned>/plugins/productivity/claude-tracker/` |
 
-> ⚠️ **Marketplace paths include the plugin version** (e.g. `.../claude-tracker/0.2.0/...`). Every time you upgrade the plugin, the absolute path changes — the old `<version>` directory is swapped for the new one. Rerunning `install-ccstatusline.sh` from the new install dir detects this, rewrites each Custom Command widget's `commandPath` in `~/.config/ccstatusline/settings.json` in place (backup written to `.bak`), and exits. Just restart Claude Code — no TUI re-paste needed. (Local clones don't have this problem — the path stays put.)
+> ⚠️ **Marketplace paths include the plugin version** (e.g. `.../claude-tracker/0.3.0/...`). Every time you upgrade the plugin, the absolute path changes — the old `<version>` directory is swapped for the new one. Rerunning `install-ccstatusline.sh` from the new install dir detects this, rewrites each Custom Command widget's `commandPath` in `~/.config/ccstatusline/settings.json` in place (backup written to `.bak`), and exits. Just restart Claude Code — no TUI re-paste needed. (Local clones don't have this problem — the path stays put.)
 
 Everywhere this guide shows `<PYTHON>` or `<PLUGIN_DIR>`, substitute the strings the install script printed for you.
 
