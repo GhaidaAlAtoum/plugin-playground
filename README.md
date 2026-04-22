@@ -35,14 +35,22 @@ plugin-playground/
 ├── plugins/
 │   └── productivity/
 │       ├── daily-notes/
-│       │   └── .claude-plugin/plugin.json
-│       └── notes-integrations/
-│           └── .claude-plugin/plugin.json
+│       │   ├── .claude-plugin/plugin.json
+│       │   └── skills/
+│       ├── notes-integrations/
+│       │   ├── .claude-plugin/plugin.json
+│       │   └── skills/
+│       ├── claude-tracker/
+│       │   ├── .claude-plugin/plugin.json
+│       │   └── skills/
+│       └── senior-engineer/
+│           ├── .claude-plugin/plugin.json
+│           └── skills/
 ├── README.md
 └── LICENSE
 ```
 
-Each plugin carries its own `README.md`, `CONTRIBUTING.md`, and `skills/` directory. See individual plugin READMEs for skill reference, configuration options, and usage examples.
+Each plugin carries its own `README.md` and `skills/` directory. See individual plugin READMEs for skill reference, configuration options, and usage examples.
 
 ## License
 
