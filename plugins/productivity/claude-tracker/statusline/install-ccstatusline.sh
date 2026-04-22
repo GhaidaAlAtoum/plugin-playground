@@ -242,7 +242,7 @@ echo
 say "   ${DIM}session segment${RESET}"
 say "     $PYTHON_BIN $RENDERER --segment session"
 echo
-say "5. ${DIM}(Optional, Team plan)${RESET} add SessionUsage / WeeklyUsage widgets."
+say "5. ${DIM}(Optional)${RESET} add ccstatusline's built-in ${BOLD}WeeklyUsage${RESET} widget for a 7-day quota readout."
 echo
 say "Your config is saved to ${DIM}~/.config/ccstatusline/settings.json${RESET}."
 say "Restart Claude Code to see the new statusline."

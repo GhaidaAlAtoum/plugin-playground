@@ -404,18 +404,6 @@ def main() -> int:
 
     payload = _parse_stdin()
 
-    # Phase 0 verification hook: `TRACKER_DUMP_STDIN=1 claude` captures the
-    # raw payload to ~/.claude/.cache/tracker-stdin-sample-<segment>.json so
-    # we can confirm which Anthropic plans populate `rate_limits.*`. Intended
-    # to be deleted once the migration to stdin-sourced data is stable.
-    if os.environ.get("TRACKER_DUMP_STDIN"):
-        try:
-            CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            out = CACHE_DIR / f"tracker-stdin-sample-{args.segment}.json"
-            out.write_text(json.dumps(payload, indent=2, sort_keys=True))
-        except OSError:
-            pass
-
     if args.segment == "ctx":
         # Ctx is computed live per-render — no cache dependency.
         sys.stdout.write(segment_ctx(payload))

@@ -6,6 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-04-22
+
+### Removed
+- `TRACKER_DUMP_STDIN` env-gated dump hook in `render_segments.py`. Confirmed on Claude Code 2.1.117 that both Team and Individual plans populate `rate_limits.five_hour.{used_percentage, resets_at}` on the statusline stdin payload once the session has sent at least one message, so the stdin-sourced bar works on every tier checked.
+
+### Changed
+- README Limitations: dropped the "rate_limits when present" hedge and replaced with explicit "works on every plan once the first message lands; short time-elapsed fallback covers pre-first-message and older Claude Code versions."
+- `install-ccstatusline.sh` step 5: recommend `WeeklyUsage` only — the old `SessionUsage` recommendation was redundant once our 5h segment started reading `rate_limits.five_hour` directly.
+
 ## [0.4.0] — 2026-04-22
 
 ### Changed
