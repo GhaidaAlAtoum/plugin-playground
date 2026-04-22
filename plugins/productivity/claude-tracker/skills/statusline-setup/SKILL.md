@@ -40,4 +40,4 @@ Walk the user through enabling the v2 statusline. The heavy lifting is done by `
 - The script only rewrites the `commandPath` of Custom Command widgets whose path already contains `render_segments.py`. Every other widget, every other field, and the rest of `~/.config/ccstatusline/settings.json` are left untouched. A `.bak` is written before any change.
 - Don't make ad-hoc manual edits to `~/.config/ccstatusline/settings.json` — re-opening the TUI will overwrite them. If the auto-patch doesn't cover something, change it in the TUI.
 - If the setup script fails a prerequisite check (missing `npx` or `python3`), help the user install Node/Python rather than trying to work around it.
-- The old v1 `claude-cost.sh` script stays in place through v0.3.x for migration safety — no rush to remove it from the other machine.
+- The old v1 `claude-cost.sh` script stays in place through v0.4.x for migration safety — no rush to remove it from the other machine.

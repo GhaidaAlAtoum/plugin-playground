@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versio
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-04-22
+
 ### Changed
 - **Statusline now prefers Claude Code's own stdin metrics over locally-derived numbers.** The 5h bar reads `rate_limits.five_hour.used_percentage` and `resets_at` directly (authoritative Anthropic numbers), so on Team — and any plan where Claude Code populates these fields — the bar tracks *actual quota consumed* instead of wall-clock time elapsed in the window. Context bar prefers `context_window.used_percentage` + `context_window_size`; session cost prefers `cost.total_cost_usd`. Each segment falls back to the prior jsonl-scan / transcript-tail path when stdin doesn't carry the field, so older Claude Code versions and plans without rate-limit exposure keep working.
 

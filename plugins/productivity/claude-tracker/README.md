@@ -62,7 +62,7 @@ If you're still on the one-line `claude-cost.sh`:
 }
 ```
 
-This path is preserved through v0.3.x for migration safety. Scheduled removal in v0.4.0.
+This path is preserved through v0.4.x for migration safety. Scheduled removal in v0.5.0.
 
 ### Install the macOS menu bar (optional)
 
